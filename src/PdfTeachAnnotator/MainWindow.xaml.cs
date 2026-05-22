@@ -1,0 +1,100 @@
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Ink;
+using System.Windows.Input;
+using System.Windows.Media;
+using PdfTeachAnnotator.ViewModels;
+
+namespace PdfTeachAnnotator;
+
+public partial class MainWindow : Window
+{
+    private readonly MainViewModel _viewModel;
+
+    public MainWindow()
+    {
+        InitializeComponent();
+        _viewModel = new MainViewModel();
+        DataContext = _viewModel;
+
+        _viewModel.Toolbar.ConfirmClearAll = () =>
+            MessageBox.Show("确定要清除所有批注吗？", "确认清除",
+                MessageBoxButton.OKCancel, MessageBoxImage.Warning) == MessageBoxResult.OK;
+
+        _viewModel.Toolbar.PropertyChanged += (s, e) =>
+        {
+            if (e.PropertyName is nameof(ToolbarViewModel.EraserSize) or nameof(ToolbarViewModel.ActiveTool))
+                UpdateEraserShapes();
+        };
+
+        InputBindings.Add(new KeyBinding(_viewModel.OpenFileCommand, Key.O, ModifierKeys.Control));
+    }
+
+    private void UpdateEraserShapes()
+    {
+        var size = _viewModel.Toolbar.EraserSize;
+        var shape = new RectangleStylusShape(size, size);
+        foreach (var inkCanvas in FindVisualChildren<InkCanvas>(this))
+            inkCanvas.EraserShape = shape;
+    }
+
+    private static IEnumerable<T> FindVisualChildren<T>(DependencyObject parent) where T : DependencyObject
+    {
+        var count = VisualTreeHelper.GetChildrenCount(parent);
+        for (int i = 0; i < count; i++)
+        {
+            var child = VisualTreeHelper.GetChild(parent, i);
+            if (child is T t) yield return t;
+            foreach (var sub in FindVisualChildren<T>(child))
+                yield return sub;
+        }
+    }
+
+    private void ScrollViewer_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+    {
+        if (Keyboard.Modifiers == ModifierKeys.Control)
+        {
+            e.Handled = true;
+            _viewModel.ZoomLevel += e.Delta > 0 ? 0.1 : -0.1;
+        }
+    }
+
+    private void ScrollViewer_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        _viewModel.ViewportWidth = (int)e.NewSize.Width;
+    }
+
+    private void Window_Drop(object sender, DragEventArgs e)
+    {
+        if (e.Data.GetDataPresent(DataFormats.FileDrop))
+        {
+            var files = (string[])e.Data.GetData(DataFormats.FileDrop)!;
+            var pdf = files.FirstOrDefault(f => f.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase));
+            if (pdf != null)
+                _viewModel.LoadPdf(pdf);
+        }
+    }
+
+    private void Window_DragOver(object sender, DragEventArgs e)
+    {
+        e.Effects = e.Data.GetDataPresent(DataFormats.FileDrop) ? DragDropEffects.Copy : DragDropEffects.None;
+        e.Handled = true;
+    }
+
+    private void ColorSwatch_Click(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is FrameworkElement el && el.Tag is Color color)
+        {
+            _viewModel.Toolbar.SelectedColor = color;
+            _viewModel.Toolbar.ActiveTool = ToolbarViewModel.ToolMode.Pen;
+        }
+    }
+
+    private void Exit_Click(object sender, RoutedEventArgs e) => Close();
+
+    protected override void OnClosed(EventArgs e)
+    {
+        _viewModel.Dispose();
+        base.OnClosed(e);
+    }
+}

@@ -1,0 +1,100 @@
+{
+  "id": "TASK-001",
+  "title": "Project Scaffolding + PDF Rendering Engine",
+  "description": "Create WPF application project with PDFium integration. Implement continuous vertical scroll PDF viewing with fit-to-width rendering. Include file open dialog and basic window chrome.",
+
+  "issue_id": null,
+  "issue_refs": [],
+  "type": "feature",
+  "priority": "high",
+  "effort": "large",
+  "action": "Create .NET 8 WPF project 'PdfTeachAnnotator'. Add NuGet packages: PdfiumViewer (or Docnet.Core for PDFium bindings). Implement MainWindow with ScrollViewer containing ItemsControl that renders PDF pages as Image elements. Each page rendered via PDFium at screen DPI, scaled to fit viewport width. Support opening PDF via File > Open dialog and drag-drop.",
+  "status": "pending",
+  "completed_at": null,
+  "actual_duration": null,
+
+  "scope": "src/PdfTeachAnnotator",
+  "focus_paths": ["src/PdfTeachAnnotator/MainWindow.xaml", "src/PdfTeachAnnotator/ViewModels/MainViewModel.cs", "src/PdfTeachAnnotator/Services/PdfRenderService.cs"],
+
+  "read_first": [
+    ".workflow/research/SUMMARY.md",
+    ".workflow/project.md"
+  ],
+
+  "depends_on": [],
+  "wave": 1,
+  "parallel_group": null,
+  "execution_group": null,
+  "executor": "agent",
+
+  "convergence": {
+    "criteria": [
+      "PdfTeachAnnotator.csproj contains '<TargetFramework>net8.0-windows</TargetFramework>'",
+      "PdfTeachAnnotator.csproj contains '<UseWPF>true</UseWPF>'",
+      "PdfTeachAnnotator.csproj contains PackageReference for PDF rendering library",
+      "MainWindow.xaml contains ScrollViewer with ItemsControl",
+      "dotnet build src/PdfTeachAnnotator exits 0",
+      "PdfRenderService.cs contains 'RenderPage' method that returns BitmapSource"
+    ],
+    "verification": "dotnet build src/PdfTeachAnnotator && dotnet run --project src/PdfTeachAnnotator -- test.pdf",
+    "definition_of_done": "Application opens, loads a PDF file, and displays all pages in continuous vertical scroll fitted to window width"
+  },
+
+  "files": [
+    {"path": "src/PdfTeachAnnotator/PdfTeachAnnotator.csproj", "action": "create", "target": "project file", "change": "Create .NET 8 WPF project with PDFium NuGet reference"},
+    {"path": "src/PdfTeachAnnotator/App.xaml", "action": "create", "target": "App", "change": "WPF Application entry point"},
+    {"path": "src/PdfTeachAnnotator/App.xaml.cs", "action": "create", "target": "App code-behind", "change": "Application startup"},
+    {"path": "src/PdfTeachAnnotator/MainWindow.xaml", "action": "create", "target": "MainWindow", "change": "ScrollViewer + ItemsControl for PDF pages, menu bar with File > Open"},
+    {"path": "src/PdfTeachAnnotator/MainWindow.xaml.cs", "action": "create", "target": "MainWindow code-behind", "change": "DataContext binding, drag-drop handler"},
+    {"path": "src/PdfTeachAnnotator/ViewModels/MainViewModel.cs", "action": "create", "target": "MainViewModel", "change": "ObservableCollection<BitmapSource> Pages, OpenFileCommand, current PDF path tracking"},
+    {"path": "src/PdfTeachAnnotator/Services/PdfRenderService.cs", "action": "create", "target": "PdfRenderService", "change": "PDFium wrapper: OpenDocument, GetPageCount, RenderPage(pageIndex, width) -> BitmapSource"}
+  ],
+
+  "implementation": [
+    "Create solution file: dotnet new sln -n PdfTeachAnnotator -o src/",
+    "Create WPF project: dotnet new wpf -n PdfTeachAnnotator -o src/PdfTeachAnnotator --framework net8.0-windows",
+    "Add PDFium NuGet: dotnet add src/PdfTeachAnnotator package Docnet.Core (or PdfiumViewer if Docnet unavailable)",
+    "Implement PdfRenderService: wrap PDFium native calls, expose RenderPage(int pageIndex, int targetWidth) returning BitmapSource",
+    "Implement MainViewModel with INotifyPropertyChanged: Pages collection, OpenFileCommand (RelayCommand), LoadPdf(string path) that renders all pages at viewport width",
+    "Design MainWindow.xaml: DockPanel with Menu (File>Open, File>Exit) at top, ScrollViewer with VirtualizingStackPanel containing ItemsControl bound to Pages",
+    "Add drag-drop support on MainWindow for .pdf files",
+    "Wire up viewport SizeChanged to re-render pages at new width (fit-to-width)"
+  ],
+
+  "test": {
+    "commands": ["dotnet build src/PdfTeachAnnotator"],
+    "unit": [],
+    "integration": ["Manual: open app, load PDF, verify continuous scroll and fit-to-width"],
+    "success_metrics": ["Build succeeds", "PDF renders all pages", "Scroll is continuous", "Pages fit window width"]
+  },
+
+  "reference": {
+    "pattern": "Standard WPF MVVM with service layer",
+    "files": [],
+    "examples": null
+  },
+
+  "rationale": {
+    "chosen_approach": "PDFium renders pages to bitmaps displayed in virtualized ItemsControl. Simple, proven pattern for PDF viewing in WPF.",
+    "decision_factors": ["PDFium is fast and free (BSD)", "Bitmap rendering avoids complex PDF layout", "ItemsControl with VirtualizingStackPanel handles large documents"],
+    "tradeoffs": "Bitmap approach uses more memory than vector rendering but is simpler and more reliable"
+  },
+
+  "risks": ["PDFium native DLL loading on different machines", "Memory usage with large PDFs (mitigate with virtualization)"],
+
+  "code_skeleton": null,
+
+  "doc_context": {
+    "affected_features": ["PDF viewing"],
+    "affected_components": ["PdfRenderService", "MainViewModel", "MainWindow"],
+    "affected_requirements": ["REQ-01"],
+    "adr_ids": []
+  },
+
+  "meta": {
+    "estimated_time": "60min",
+    "risk": "medium",
+    "autonomous": true,
+    "checkpoint": false
+  }
+}

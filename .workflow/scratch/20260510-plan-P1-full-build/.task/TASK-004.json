@@ -1,0 +1,99 @@
+{
+  "id": "TASK-004",
+  "title": "Annotation Save/Restore",
+  "description": "Implement annotation persistence: save all page annotations to an independent JSON+ISF file, and restore them when reopening the same PDF.",
+
+  "issue_id": null,
+  "issue_refs": [],
+  "type": "feature",
+  "priority": "medium",
+  "effort": "medium",
+  "action": "Create AnnotationFileService that serializes/deserializes annotations. File format: JSON wrapper with PDF file hash + per-page ISF (Ink Serialization Format) as base64. Save triggered by Ctrl+S or menu File>Save Annotations. On PDF open, auto-check for matching .annotations file in same directory. Restore strokes to corresponding InkCanvas instances.",
+  "status": "pending",
+  "completed_at": null,
+  "actual_duration": null,
+
+  "scope": "src/PdfTeachAnnotator",
+  "focus_paths": ["src/PdfTeachAnnotator/Services/AnnotationFileService.cs", "src/PdfTeachAnnotator/Models/AnnotationFile.cs"],
+
+  "read_first": [
+    "src/PdfTeachAnnotator/ViewModels/MainViewModel.cs",
+    "src/PdfTeachAnnotator/MainWindow.xaml",
+    "src/PdfTeachAnnotator/MainWindow.xaml.cs"
+  ],
+
+  "depends_on": ["TASK-002"],
+  "wave": 3,
+  "parallel_group": "wave3",
+  "execution_group": null,
+  "executor": "agent",
+
+  "convergence": {
+    "criteria": [
+      "AnnotationFileService.cs contains 'SaveAnnotations' method",
+      "AnnotationFileService.cs contains 'LoadAnnotations' method",
+      "AnnotationFile.cs contains 'PdfHash' property",
+      "AnnotationFile.cs contains 'Pages' dictionary property",
+      "Source contains 'StrokeCollection' serialization (Save or ISF)",
+      "Source contains SHA256 or hash computation for PDF file",
+      "XAML contains menu item 'Save Annotations' or keyboard shortcut Ctrl+S",
+      "dotnet build src/PdfTeachAnnotator exits 0"
+    ],
+    "verification": "dotnet build && manual test: draw annotations, save, close, reopen same PDF, verify annotations restored",
+    "definition_of_done": "Annotations persist across sessions. Save creates .annotations JSON file. Opening a PDF auto-loads matching annotations if file exists."
+  },
+
+  "files": [
+    {"path": "src/PdfTeachAnnotator/Models/AnnotationFile.cs", "action": "create", "target": "AnnotationFile model", "change": "Class with Version (int), PdfHash (string, SHA256), Pages (Dictionary<int, string> where value is base64 ISF)"},
+    {"path": "src/PdfTeachAnnotator/Services/AnnotationFileService.cs", "action": "create", "target": "AnnotationFileService", "change": "SaveAnnotations(string pdfPath, Dictionary<int, StrokeCollection> pageStrokes), LoadAnnotations(string pdfPath) -> Dictionary<int, StrokeCollection>, ComputePdfHash(string path)"},
+    {"path": "src/PdfTeachAnnotator/ViewModels/MainViewModel.cs", "action": "modify", "target": "MainViewModel", "change": "Add SaveCommand (Ctrl+S), auto-load annotations in LoadPdf(), collect strokes from all InkCanvas instances for save"},
+    {"path": "src/PdfTeachAnnotator/MainWindow.xaml", "action": "modify", "target": "menu", "change": "Add File > Save Annotations (Ctrl+S) menu item"}
+  ],
+
+  "implementation": [
+    "Create AnnotationFile model: { version: 1, pdf_hash: string, pages: Dictionary<int, string> }",
+    "Implement ComputePdfHash: SHA256 of first 1MB of PDF file (fast, sufficient for identity)",
+    "Implement SaveAnnotations: for each page with strokes, serialize StrokeCollection to MemoryStream using ISF format (stroke.Save(stream)), convert to base64, store in pages dict. Serialize AnnotationFile to JSON. Write to {pdfPath}.annotations",
+    "Implement LoadAnnotations: read JSON from {pdfPath}.annotations, verify pdf_hash matches (warn if mismatch), deserialize each page's base64 ISF back to StrokeCollection",
+    "Add SaveCommand to MainViewModel bound to Ctrl+S: collect all InkCanvas strokes by page index, call AnnotationFileService.SaveAnnotations",
+    "In LoadPdf(): after rendering pages, call AnnotationFileService.LoadAnnotations, apply returned StrokeCollections to corresponding InkCanvas instances",
+    "Add menu item File > Save Annotations with InputGestureText='Ctrl+S'"
+  ],
+
+  "test": {
+    "commands": ["dotnet build src/PdfTeachAnnotator"],
+    "unit": ["AnnotationFileService serialization round-trip test"],
+    "integration": ["Draw on pages 1,3,5 → save → close → reopen → verify strokes on correct pages", "Open PDF without annotations file → no error", "Modify PDF → warn about hash mismatch"],
+    "success_metrics": ["Annotations survive app restart", "Only pages with strokes are stored", "File format is JSON-readable"]
+  },
+
+  "reference": {
+    "pattern": "WPF StrokeCollection.Save/Load with ISF format",
+    "files": [],
+    "examples": null
+  },
+
+  "rationale": {
+    "chosen_approach": "ISF is WPF's native ink format — compact, preserves all stroke properties (color, width, pressure). JSON wrapper adds metadata and human-readability.",
+    "decision_factors": ["ISF preserves full stroke fidelity", "JSON wrapper enables tooling/debugging", "Per-page storage is sparse (only annotated pages)"],
+    "tradeoffs": "Base64 ISF in JSON is ~33% larger than raw binary, but keeps the file format simple and inspectable"
+  },
+
+  "risks": ["StrokeCollection serialization API differences across .NET versions", "Large annotation files if many pages annotated heavily"],
+
+  "code_skeleton": null,
+
+  "doc_context": {
+    "affected_features": ["Save/Restore"],
+    "affected_components": ["AnnotationFileService", "AnnotationFile", "MainViewModel"],
+    "affected_requirements": ["REQ-06", "REQ-07"],
+    "adr_ids": []
+  },
+
+  "meta": {
+    "estimated_time": "45min",
+    "risk": "low",
+    "autonomous": true,
+    "checkpoint": false
+  }
+}

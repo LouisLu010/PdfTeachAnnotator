@@ -1,0 +1,229 @@
+{
+  "version": 2,
+  "generatedAt": 1778414718075,
+  "entries": [
+    {
+      "id": "project-project",
+      "type": "project",
+      "title": "Project: PDF Teach Annotator",
+      "summary": "## What This Is",
+      "tags": [],
+      "status": "active",
+      "created": "2026-05-10T11:59:33.984Z",
+      "updated": "2026-05-10T11:59:33.984Z",
+      "scope": null,
+      "category": null,
+      "createdBy": null,
+      "sourceRef": null,
+      "parent": null,
+      "related": [],
+      "source": {
+        "kind": "file",
+        "path": "project.md"
+      }
+    },
+    {
+      "id": "roadmap-roadmap",
+      "type": "roadmap",
+      "title": "Roadmap: PDF Teach Annotator",
+      "summary": "## Overview",
+      "tags": [],
+      "status": "active",
+      "created": "2026-05-10T12:03:08.729Z",
+      "updated": "2026-05-10T12:03:08.729Z",
+      "scope": null,
+      "category": null,
+      "createdBy": null,
+      "sourceRef": null,
+      "parent": null,
+      "related": [],
+      "source": {
+        "kind": "file",
+        "path": "roadmap.md"
+      }
+    },
+    {
+      "id": "spec:project:architecture-constraints",
+      "type": "spec",
+      "title": "Architecture Constraints",
+      "summary": "# Architecture Constraints",
+      "tags": [
+        "architecture",
+        "module",
+        "layer",
+        "boundary",
+        "dependency",
+        "structure"
+      ],
+      "status": "active",
+      "created": "2026-05-10T12:00:13.181Z",
+      "updated": "2026-05-10T12:00:13.181Z",
+      "scope": "project",
+      "category": "arch",
+      "createdBy": null,
+      "sourceRef": null,
+      "parent": null,
+      "related": [],
+      "source": {
+        "kind": "file",
+        "path": "specs/architecture-constraints.md"
+      }
+    },
+    {
+      "id": "spec:project:coding-conventions",
+      "type": "spec",
+      "title": "Coding Conventions",
+      "summary": "# Coding Conventions",
+      "tags": [
+        "style",
+        "naming",
+        "import",
+        "pattern",
+        "convention",
+        "formatting"
+      ],
+      "status": "active",
+      "created": "2026-05-10T12:00:13.181Z",
+      "updated": "2026-05-10T12:00:13.181Z",
+      "scope": "project",
+      "category": "coding",
+      "createdBy": null,
+      "sourceRef": null,
+      "parent": null,
+      "related": [],
+      "source": {
+        "kind": "file",
+        "path": "specs/coding-conventions.md"
+      }
+    },
+    {
+      "id": "spec:project:debug-notes",
+      "type": "spec",
+      "title": "Debug Notes",
+      "summary": "# Debug Notes",
+      "tags": [
+        "debug",
+        "issue",
+        "workaround",
+        "root-cause",
+        "gotcha"
+      ],
+      "status": "active",
+      "created": "2026-05-10T12:00:13.181Z",
+      "updated": "2026-05-10T12:00:13.181Z",
+      "scope": "project",
+      "category": "debug",
+      "createdBy": null,
+      "sourceRef": null,
+      "parent": null,
+      "related": [],
+      "source": {
+        "kind": "file",
+        "path": "specs/debug-notes.md"
+      }
+    },
+    {
+      "id": "spec:project:learnings",
+      "type": "spec",
+      "title": "Learnings",
+      "summary": "# Learnings",
+      "tags": [
+        "bug",
+        "lesson",
+        "gotcha",
+        "learning"
+      ],
+      "status": "active",
+      "created": "2026-05-10T12:00:13.181Z",
+      "updated": "2026-05-10T12:00:13.181Z",
+      "scope": "project",
+      "category": "learning",
+      "createdBy": null,
+      "sourceRef": null,
+      "parent": null,
+      "related": [],
+      "source": {
+        "kind": "file",
+        "path": "specs/learnings.md"
+      }
+    },
+    {
+      "id": "spec:project:quality-rules",
+      "type": "spec",
+      "title": "Quality Rules",
+      "summary": "# Quality Rules",
+      "tags": [
+        "quality",
+        "lint",
+        "rule",
+        "enforcement"
+      ],
+      "status": "active",
+      "created": "2026-05-10T12:00:13.181Z",
+      "updated": "2026-05-10T12:00:13.181Z",
+      "scope": "project",
+      "category": "quality",
+      "createdBy": null,
+      "sourceRef": null,
+      "parent": null,
+      "related": [],
+      "source": {
+        "kind": "file",
+        "path": "specs/quality-rules.md"
+      }
+    },
+    {
+      "id": "spec:project:review-standards",
+      "type": "spec",
+      "title": "Review Standards",
+      "summary": "# Review Standards",
+      "tags": [
+        "review",
+        "checklist",
+        "gate",
+        "approval",
+        "standard"
+      ],
+      "status": "active",
+      "created": "2026-05-10T12:00:13.181Z",
+      "updated": "2026-05-10T12:00:13.181Z",
+      "scope": "project",
+      "category": "review",
+      "createdBy": null,
+      "sourceRef": null,
+      "parent": null,
+      "related": [],
+      "source": {
+        "kind": "file",
+        "path": "specs/review-standards.md"
+      }
+    },
+    {
+      "id": "spec:project:test-conventions",
+      "type": "spec",
+      "title": "Test Conventions",
+      "summary": "# Test Conventions",
+      "tags": [
+        "test",
+        "coverage",
+        "mock",
+        "fixture",
+        "assertion",
+        "framework"
+      ],
+      "status": "active",
+      "created": "2026-05-10T12:00:13.181Z",
+      "updated": "2026-05-10T12:00:13.181Z",
+      "scope": "project",
+      "category": "test",
+      "createdBy": null,
+      "sourceRef": null,
+      "parent": null,
+      "related": [],
+      "source": {
+        "kind": "file",
+        "path": "specs/test-conventions.md"
+      }
+    }
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "summary": "构建完整的 PDF 教学批注工具：从项目骨架到 PDF 渲染、批注层、缩放、保存恢复、单文件打包。5 个任务按 4 波次执行，Wave 3 中缩放和保存可并行。",
+  "approach": "WPF + PDFium + InkCanvas 三层架构。PDF 渲染为位图显示在 ScrollViewer 中，InkCanvas 覆盖层处理批注，ISF+JSON 格式持久化，.NET 8 单文件发布。",
+  "task_ids": ["TASK-001", "TASK-002", "TASK-003", "TASK-004", "TASK-005"],
+  "task_count": 5,
+  "complexity": "medium",
+  "estimated_time": "3.5h",
+  "recommended_execution": "Agent",
+
+  "waves": [
+    {
+      "wave": 1,
+      "label": "PDF Rendering Foundation",
+      "tasks": ["TASK-001"]
+    },
+    {
+      "wave": 2,
+      "label": "Annotation Layer",
+      "tasks": ["TASK-002"]
+    },
+    {
+      "wave": 3,
+      "label": "Zoom + Persistence (parallel)",
+      "tasks": ["TASK-003", "TASK-004"]
+    },
+    {
+      "wave": 4,
+      "label": "Packaging",
+      "tasks": ["TASK-005"]
+    }
+  ],
+
+  "data_flow": {
+    "diagram": "TASK-001 (PDF render) → TASK-002 (annotation) → [TASK-003 (zoom) || TASK-004 (save)] → TASK-005 (package)",
+    "stages": [
+      {"from": "TASK-001", "to": "TASK-002", "data": "PDF page rendering, MainWindow structure"},
+      {"from": "TASK-002", "to": "TASK-003", "data": "InkCanvas overlay, page container structure"},
+      {"from": "TASK-002", "to": "TASK-004", "data": "StrokeCollection per page"},
+      {"from": "TASK-003", "to": "TASK-005", "data": "Complete functional app"},
+      {"from": "TASK-004", "to": "TASK-005", "data": "Complete functional app"}
+    ]
+  },
+
+  "design_decisions": [
+    "PDFium renders pages to BitmapSource — simple, fast, avoids complex PDF layout",
+    "InkCanvas per page (not global) — keeps coordinates page-relative for save/restore",
+    "LayoutTransform for zoom — single transform point, annotations scale automatically",
+    "ISF + JSON hybrid format — ISF for stroke fidelity, JSON for metadata/tooling"
+  ],
+
+  "shared_context": {
+    "patterns": ["MVVM with INotifyPropertyChanged", "RelayCommand for ICommand", "ItemsControl with DataTemplate for page rendering"],
+    "conventions": ["C# .NET 8", "WPF XAML", "Services/ for business logic", "ViewModels/ for presentation logic", "Models/ for data classes"],
+    "dependencies": ["Docnet.Core or PdfiumViewer (PDFium)", "System.Windows.Ink (built-in)"]
+  },
+
+  "confidence": {
+    "overall": 0.85,
+    "dimensions": {
+      "requirements_coverage": 0.95,
+      "task_quality": 0.85,
+      "dependency_correctness": 0.90,
+      "estimation_accuracy": 0.75,
+      "collision_safety": 1.0
+    },
+    "pressure_pass": {
+      "task": "TASK-001",
+      "result": "pass",
+      "notes": "Highest complexity task. read_first includes research summary. Convergence criteria are grep-verifiable. Implementation steps are concrete with exact package names and method signatures."
+    }
+  },
+
+  "_metadata": {
+    "timestamp": "2026-05-10T12:10:00Z",
+    "source": "workflow-planner",
+    "planning_mode": "full",
+    "plan_type": "feature",
+    "schema_version": "2.0",
+    "git_commit": null
+  }
+}

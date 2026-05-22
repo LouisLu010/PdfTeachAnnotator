@@ -1,0 +1,100 @@
+{
+  "id": "TASK-002",
+  "title": "Annotation Layer (Pen, Eraser, Clear)",
+  "description": "Add InkCanvas overlay on each PDF page for freehand annotation. Implement toolbar with pen color picker, eraser with adjustable size, and one-click clear button.",
+
+  "issue_id": null,
+  "issue_refs": [],
+  "type": "feature",
+  "priority": "high",
+  "effort": "large",
+  "action": "Overlay transparent InkCanvas on each PDF page Image inside a Grid. Add a toolbar with: pen tool (active by default), color selector (8 preset colors + custom), eraser tool with size slider (5-50px), clear-all button. InkCanvas EditingMode switches between Ink/EraseByStroke/None. DefaultDrawingAttributes.Color bound to selected color. EraserShape size bound to slider.",
+  "status": "pending",
+  "completed_at": null,
+  "actual_duration": null,
+
+  "scope": "src/PdfTeachAnnotator",
+  "focus_paths": ["src/PdfTeachAnnotator/MainWindow.xaml", "src/PdfTeachAnnotator/Controls/AnnotationCanvas.xaml", "src/PdfTeachAnnotator/ViewModels/ToolbarViewModel.cs"],
+
+  "read_first": [
+    "src/PdfTeachAnnotator/MainWindow.xaml",
+    "src/PdfTeachAnnotator/ViewModels/MainViewModel.cs",
+    "src/PdfTeachAnnotator/MainWindow.xaml.cs"
+  ],
+
+  "depends_on": ["TASK-001"],
+  "wave": 2,
+  "parallel_group": null,
+  "execution_group": null,
+  "executor": "agent",
+
+  "convergence": {
+    "criteria": [
+      "MainWindow.xaml contains InkCanvas element",
+      "Source contains 'InkCanvasEditingMode.Ink'",
+      "Source contains 'InkCanvasEditingMode.EraseByStroke' or 'EraseByPoint'",
+      "Source contains 'Strokes.Clear()'",
+      "Source contains 'DefaultDrawingAttributes'",
+      "XAML contains color selection UI (RadioButton or ComboBox with color values)",
+      "XAML contains Slider for eraser size",
+      "dotnet build src/PdfTeachAnnotator exits 0"
+    ],
+    "verification": "dotnet build src/PdfTeachAnnotator && manual test: draw with pen, change color, erase, clear",
+    "definition_of_done": "User can draw colored strokes on PDF pages, erase individual strokes with adjustable eraser, and clear all annotations with one click"
+  },
+
+  "files": [
+    {"path": "src/PdfTeachAnnotator/MainWindow.xaml", "action": "modify", "target": "page template", "change": "Wrap each page Image+InkCanvas in Grid, add toolbar DockPanel at top"},
+    {"path": "src/PdfTeachAnnotator/ViewModels/ToolbarViewModel.cs", "action": "create", "target": "ToolbarViewModel", "change": "SelectedColor, EraserSize, ActiveTool (Pen/Eraser), PenColors collection, ClearCommand"},
+    {"path": "src/PdfTeachAnnotator/ViewModels/MainViewModel.cs", "action": "modify", "target": "MainViewModel", "change": "Add ToolbarViewModel property, wire ClearCommand to clear all InkCanvas strokes"},
+    {"path": "src/PdfTeachAnnotator/Converters/ColorToBrushConverter.cs", "action": "create", "target": "converter", "change": "IValueConverter for Color to SolidColorBrush binding"}
+  ],
+
+  "implementation": [
+    "Create ToolbarViewModel: SelectedColor (default Black), EraserSize (default 20), ActiveTool enum (Pen, Eraser), PenColors = [Black, Red, Blue, Green, Orange, Purple, Yellow, White], ClearAllCommand",
+    "Modify MainWindow.xaml page ItemTemplate: replace standalone Image with Grid containing Image (bottom) + InkCanvas (top, Background=Transparent, EditingMode bound to ActiveTool)",
+    "Add toolbar above ScrollViewer: ToggleButtons for Pen/Eraser, color palette (8 colored rectangles/buttons), Slider for eraser size (5-50, default 20), Button for Clear All",
+    "Bind InkCanvas.DefaultDrawingAttributes.Color to ToolbarViewModel.SelectedColor",
+    "Bind InkCanvas.EditingMode: Pen→Ink, Eraser→EraseByStroke",
+    "Bind eraser StylusShape dimensions to EraserSize slider value",
+    "Implement ClearAll: iterate all InkCanvas instances in visual tree, call Strokes.Clear()",
+    "Create ColorToBrushConverter for XAML color bindings"
+  ],
+
+  "test": {
+    "commands": ["dotnet build src/PdfTeachAnnotator"],
+    "unit": [],
+    "integration": ["Draw strokes in multiple colors", "Switch to eraser and erase strokes", "Adjust eraser size", "Click clear to remove all"],
+    "success_metrics": ["Pen draws in selected color", "Eraser removes strokes", "Clear removes all annotations from all pages"]
+  },
+
+  "reference": {
+    "pattern": "WPF InkCanvas with DefaultDrawingAttributes binding",
+    "files": [],
+    "examples": null
+  },
+
+  "rationale": {
+    "chosen_approach": "InkCanvas is WPF's built-in inking surface with native stroke collection, editing modes, and serialization support. Overlaying on each page keeps annotations page-aligned.",
+    "decision_factors": ["InkCanvas handles pen input natively", "EditingMode enum provides pen/eraser switching", "StrokeCollection supports serialization (ISF)"],
+    "tradeoffs": "Per-page InkCanvas means managing multiple canvases, but keeps coordinates page-relative which simplifies save/restore"
+  },
+
+  "risks": ["InkCanvas transparency over Image may have hit-testing issues", "Many strokes on one page may degrade performance"],
+
+  "code_skeleton": null,
+
+  "doc_context": {
+    "affected_features": ["Annotation"],
+    "affected_components": ["MainWindow", "ToolbarViewModel", "InkCanvas overlay"],
+    "affected_requirements": ["REQ-02", "REQ-03", "REQ-04"],
+    "adr_ids": []
+  },
+
+  "meta": {
+    "estimated_time": "60min",
+    "risk": "low",
+    "autonomous": true,
+    "checkpoint": false
+  }
+}

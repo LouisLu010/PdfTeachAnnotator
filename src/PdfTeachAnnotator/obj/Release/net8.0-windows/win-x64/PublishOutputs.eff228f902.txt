@@ -1,0 +1,3 @@
+C:\Users\Louis\Documents\pdf\publish\PdfTeachAnnotator.pdb
+C:\Users\Louis\Documents\pdf\publish\LICENSE
+C:\Users\Louis\Documents\pdf\publish\PdfTeachAnnotator.exe
