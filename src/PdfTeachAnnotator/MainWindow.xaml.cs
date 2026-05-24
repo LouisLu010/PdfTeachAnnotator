@@ -127,6 +127,15 @@ public partial class MainWindow : FluentWindow
         }
     }
 
+    private void MenuButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is System.Windows.Controls.Button button && button.ContextMenu != null)
+        {
+            button.ContextMenu.PlacementTarget = button;
+            button.ContextMenu.IsOpen = true;
+        }
+    }
+
     protected override void OnClosed(EventArgs e)
     {
         // Auto-save annotations if enabled
