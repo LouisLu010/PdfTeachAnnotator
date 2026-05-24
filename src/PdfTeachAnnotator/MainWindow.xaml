@@ -1,9 +1,12 @@
-<Window x:Class="PdfTeachAnnotator.MainWindow"
+<ui:FluentWindow x:Class="PdfTeachAnnotator.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:PdfTeachAnnotator.Converters"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         Title="PDF 教学批注工具" Height="700" Width="1000"
         WindowState="Maximized"
+        ExtendsContentIntoTitleBar="True"
+        WindowBackdropType="Mica"
         AllowDrop="True" Drop="Window_Drop" DragOver="Window_DragOver">
     <Window.Resources>
         <local:ColorToBrushConverter x:Key="ColorToBrushConverter"/>
@@ -567,4 +570,4 @@
         </ScrollViewer>
         </Grid>
     </DockPanel>
-</Window>
+</ui:FluentWindow>

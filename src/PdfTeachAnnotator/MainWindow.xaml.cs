@@ -4,10 +4,11 @@ using System.Windows.Ink;
 using System.Windows.Input;
 using System.Windows.Media;
 using PdfTeachAnnotator.ViewModels;
+using Wpf.Ui.Controls;
 
 namespace PdfTeachAnnotator;
 
-public partial class MainWindow : Window
+public partial class MainWindow : FluentWindow
 {
     private readonly MainViewModel _viewModel;
 
@@ -20,8 +21,8 @@ public partial class MainWindow : Window
         DataContext = _viewModel;
 
         _viewModel.Toolbar.ConfirmClearAll = () =>
-            MessageBox.Show("确定要清除所有批注吗？", "确认清除",
-                MessageBoxButton.OKCancel, MessageBoxImage.Warning) == MessageBoxResult.OK;
+            System.Windows.MessageBox.Show("确定要清除所有批注吗？", "确认清除",
+                System.Windows.MessageBoxButton.OKCancel, System.Windows.MessageBoxImage.Warning) == System.Windows.MessageBoxResult.OK;
 
         _viewModel.Toolbar.PropertyChanged += (s, e) =>
         {
@@ -97,19 +98,19 @@ public partial class MainWindow : Window
 
     private void RecentFile_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is Button button && button.Tag is string filePath)
+        if (sender is System.Windows.Controls.Button button && button.Tag is string filePath)
         {
             if (System.IO.File.Exists(filePath))
                 _viewModel.LoadPdf(filePath);
             else
-                MessageBox.Show("文件不存在或已被移动", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                System.Windows.MessageBox.Show("文件不存在或已被移动", "错误", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
         }
     }
 
     private void SaveSettings_Click(object sender, RoutedEventArgs e)
     {
         _viewModel.Settings.Save();
-        MessageBox.Show("设置已保存", "成功", MessageBoxButton.OK, MessageBoxImage.Information);
+        System.Windows.MessageBox.Show("设置已保存", "成功", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
     }
 
     protected override void OnClosed(EventArgs e)
