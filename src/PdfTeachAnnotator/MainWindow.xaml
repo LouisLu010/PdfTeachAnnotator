@@ -13,6 +13,7 @@
         <local:PenIconColorConverter x:Key="PenIconColorConverter"/>
         <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <local:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
+        <local:SliderProgressConverter x:Key="SliderProgressConverter"/>
 
         <!-- Material-style vector icon geometries -->
         <Geometry x:Key="IconOpen">M19,20H4C2.89,20 2,19.1 2,18V6C2,4.89 2.89,4 4,4H10L12,6H19A2,2 0 0,1 21,8H4V18L6.14,10H22.14L20,18C19.79,18.84 19,20 19,20Z</Geometry>
@@ -206,7 +207,7 @@
         <!-- Clear Slider Panel -->
         <Border DockPanel.Dock="Top" Background="#FFF3CD" BorderBrush="#FFC107" BorderThickness="0,0,0,2"
                 Padding="20,12" Visibility="{Binding Toolbar.ShowClearSlider, Converter={StaticResource BoolToVisibilityConverter}}">
-            <Grid MaxWidth="600" HorizontalAlignment="Center">
+            <Grid MaxWidth="800" HorizontalAlignment="Center">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
@@ -218,35 +219,63 @@
                     <TextBlock Text="滑动到右侧以清空所有批注" FontSize="14" FontWeight="SemiBold" Foreground="#856404" VerticalAlignment="Center"/>
                 </StackPanel>
 
-                <Slider Grid.Column="1" Value="{Binding Toolbar.ClearSliderValue}" Minimum="0" Maximum="100"
-                        VerticalAlignment="Center" Margin="0,0,20,0" Height="40">
-                    <Slider.Resources>
-                        <Style TargetType="Thumb">
-                            <Setter Property="Width" Value="36"/>
-                            <Setter Property="Height" Value="36"/>
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="Thumb">
-                                        <Border Background="#FF9800" CornerRadius="18" BorderBrush="White" BorderThickness="3">
-                                            <Border.Effect>
-                                                <DropShadowEffect Color="#000000" BlurRadius="8" ShadowDepth="2" Opacity="0.3"/>
-                                            </Border.Effect>
-                                            <Path Data="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"
-                                                  Fill="White" Width="16" Height="16" Stretch="Uniform"
-                                                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                        </Border>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                        </Style>
-                    </Slider.Resources>
-                    <Slider.Style>
-                        <Style TargetType="Slider">
-                            <Setter Property="Foreground" Value="#FF9800"/>
-                            <Setter Property="Background" Value="#FFE5B4"/>
-                        </Style>
-                    </Slider.Style>
-                </Slider>
+                <Grid Grid.Column="1" Margin="0,0,20,0">
+                    <!-- Background Track -->
+                    <Border Background="#FFE5B4" CornerRadius="20" Height="12" VerticalAlignment="Center"/>
+
+                    <!-- Progress Track (filled part) -->
+                    <Border x:Name="ProgressTrack" Background="#FF9800" CornerRadius="20" Height="12"
+                            VerticalAlignment="Center" HorizontalAlignment="Left">
+                        <Border.Width>
+                            <MultiBinding Converter="{StaticResource SliderProgressConverter}">
+                                <Binding Path="Toolbar.ClearSliderValue"/>
+                                <Binding RelativeSource="{RelativeSource AncestorType=Grid}" Path="ActualWidth"/>
+                            </MultiBinding>
+                        </Border.Width>
+                    </Border>
+
+                    <!-- Slider -->
+                    <Slider Value="{Binding Toolbar.ClearSliderValue}" Minimum="0" Maximum="100"
+                            VerticalAlignment="Center" Height="40" Background="Transparent">
+                        <Slider.Resources>
+                            <Style TargetType="Thumb">
+                                <Setter Property="Width" Value="40"/>
+                                <Setter Property="Height" Value="40"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Thumb">
+                                            <Border Background="#FF9800" CornerRadius="20" BorderBrush="White" BorderThickness="3">
+                                                <Border.Effect>
+                                                    <DropShadowEffect Color="#000000" BlurRadius="10" ShadowDepth="3" Opacity="0.4"/>
+                                                </Border.Effect>
+                                                <Path Data="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"
+                                                      Fill="White" Width="18" Height="18" Stretch="Uniform"
+                                                      HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </Slider.Resources>
+                        <Slider.Style>
+                            <Style TargetType="Slider">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Slider">
+                                            <Grid>
+                                                <Track x:Name="PART_Track">
+                                                    <Track.Thumb>
+                                                        <Thumb/>
+                                                    </Track.Thumb>
+                                                </Track>
+                                            </Grid>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </Slider.Style>
+                    </Slider>
+                </Grid>
 
                 <Button Grid.Column="2" Command="{Binding Toolbar.ToggleClearSliderCommand}" Padding="12,8"
                         Background="Transparent" BorderBrush="#856404" BorderThickness="1" Cursor="Hand">

@@ -10,7 +10,8 @@
       "Skill(maestro-plan)",
       "Skill(maestro-execute)",
       "Bash(git add *)",
-      "Bash(git commit -m '深度美化 WPF 应用 - 完整版 *)"
+      "Bash(git commit -m '深度美化 WPF 应用 - 完整版 *)",
+      "Bash(git commit -m '改进滑动清除功能 *)"
     ]
   }
 }
