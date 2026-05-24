@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PdfTeachAnnotator")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e64be9cd2ad86151fb20a051803a78e68f3e8544")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b4bc9278767d9f896db4932c63afd871e93f169e")]
 [assembly: System.Reflection.AssemblyProductAttribute("PdfTeachAnnotator")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PdfTeachAnnotator")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
