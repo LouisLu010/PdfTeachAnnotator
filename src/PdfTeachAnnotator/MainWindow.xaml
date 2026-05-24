@@ -219,12 +219,12 @@
                     <TextBlock Text="滑动到右侧以清空所有批注" FontSize="14" FontWeight="SemiBold" Foreground="#856404" VerticalAlignment="Center"/>
                 </StackPanel>
 
-                <Grid Grid.Column="1" Margin="0,0,20,0">
-                    <!-- Background Track -->
+                <Grid Grid.Column="1" Margin="0,0,20,0" Height="50">
+                    <!-- Background Track (light orange) -->
                     <Border Background="#FFE5B4" CornerRadius="20" Height="12" VerticalAlignment="Center"/>
 
-                    <!-- Progress Track (filled part) -->
-                    <Border x:Name="ProgressTrack" Background="#FF9800" CornerRadius="20" Height="12"
+                    <!-- Progress Track (dark orange, grows with slider) -->
+                    <Border Background="#FF9800" CornerRadius="20" Height="12"
                             VerticalAlignment="Center" HorizontalAlignment="Left">
                         <Border.Width>
                             <MultiBinding Converter="{StaticResource SliderProgressConverter}">
@@ -234,29 +234,9 @@
                         </Border.Width>
                     </Border>
 
-                    <!-- Slider -->
+                    <!-- Slider (transparent track, only thumb visible) -->
                     <Slider Value="{Binding Toolbar.ClearSliderValue}" Minimum="0" Maximum="100"
-                            VerticalAlignment="Center" Height="40" Background="Transparent">
-                        <Slider.Resources>
-                            <Style TargetType="Thumb">
-                                <Setter Property="Width" Value="40"/>
-                                <Setter Property="Height" Value="40"/>
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate TargetType="Thumb">
-                                            <Border Background="#FF9800" CornerRadius="20" BorderBrush="White" BorderThickness="3">
-                                                <Border.Effect>
-                                                    <DropShadowEffect Color="#000000" BlurRadius="10" ShadowDepth="3" Opacity="0.4"/>
-                                                </Border.Effect>
-                                                <Path Data="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"
-                                                      Fill="White" Width="18" Height="18" Stretch="Uniform"
-                                                      HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                            </Border>
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                            </Style>
-                        </Slider.Resources>
+                            VerticalAlignment="Center" IsMoveToPointEnabled="True">
                         <Slider.Style>
                             <Style TargetType="Slider">
                                 <Setter Property="Template">
@@ -264,8 +244,27 @@
                                         <ControlTemplate TargetType="Slider">
                                             <Grid>
                                                 <Track x:Name="PART_Track">
+                                                    <Track.DecreaseRepeatButton>
+                                                        <RepeatButton Opacity="0" Command="{x:Static Slider.DecreaseLarge}"/>
+                                                    </Track.DecreaseRepeatButton>
+                                                    <Track.IncreaseRepeatButton>
+                                                        <RepeatButton Opacity="0" Command="{x:Static Slider.IncreaseLarge}"/>
+                                                    </Track.IncreaseRepeatButton>
                                                     <Track.Thumb>
-                                                        <Thumb/>
+                                                        <Thumb Width="44" Height="44">
+                                                            <Thumb.Template>
+                                                                <ControlTemplate TargetType="Thumb">
+                                                                    <Border Background="#FF9800" CornerRadius="22" BorderBrush="White" BorderThickness="3">
+                                                                        <Border.Effect>
+                                                                            <DropShadowEffect Color="#000000" BlurRadius="12" ShadowDepth="3" Opacity="0.4"/>
+                                                                        </Border.Effect>
+                                                                        <Path Data="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"
+                                                                              Fill="White" Width="20" Height="20" Stretch="Uniform"
+                                                                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                                    </Border>
+                                                                </ControlTemplate>
+                                                            </Thumb.Template>
+                                                        </Thumb>
                                                     </Track.Thumb>
                                                 </Track>
                                             </Grid>
