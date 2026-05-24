@@ -74,6 +74,7 @@ public class ToolbarViewModel : ViewModelBase
 
     private bool _showClearSlider;
     private double _clearSliderValue;
+    private bool _showCheckmark;
 
     public bool ShowClearSlider
     {
@@ -90,12 +91,16 @@ public class ToolbarViewModel : ViewModelBase
             {
                 if (value >= 100)
                 {
-                    ExecuteClearAll();
-                    ShowClearSlider = false;
-                    ClearSliderValue = 0;
+                    ShowCheckmarkAndClear();
                 }
             }
         }
+    }
+
+    public bool ShowCheckmark
+    {
+        get => _showCheckmark;
+        set => SetField(ref _showCheckmark, value);
     }
 
     public event Action? ClearAllRequested;
@@ -113,6 +118,16 @@ public class ToolbarViewModel : ViewModelBase
     private void ExecuteClearAll()
     {
         ClearAllRequested?.Invoke();
+    }
+
+    private async void ShowCheckmarkAndClear()
+    {
+        ShowCheckmark = true;
+        await Task.Delay(1000); // 显示勾号 1 秒
+        ShowCheckmark = false;
+        ExecuteClearAll();
+        ShowClearSlider = false;
+        ClearSliderValue = 0;
     }
 
     private void UpdateDrawingAttributes()

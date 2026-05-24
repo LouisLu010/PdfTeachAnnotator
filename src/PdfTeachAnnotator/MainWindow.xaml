@@ -234,10 +234,23 @@
                         </Border.Width>
                     </Border>
 
+                    <!-- Checkmark (shown when slider reaches 100%) -->
+                    <Border Background="#27AE60" CornerRadius="30" Width="60" Height="60"
+                            HorizontalAlignment="Right" VerticalAlignment="Center"
+                            Visibility="{Binding Toolbar.ShowCheckmark, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Border.Effect>
+                            <DropShadowEffect Color="#000000" BlurRadius="15" ShadowDepth="3" Opacity="0.5"/>
+                        </Border.Effect>
+                        <Path Data="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z"
+                              Fill="White" Width="32" Height="32" Stretch="Uniform"
+                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+
                     <!-- Slider -->
                     <Slider Value="{Binding Toolbar.ClearSliderValue}" Minimum="0" Maximum="100"
                             VerticalAlignment="Center" IsMoveToPointEnabled="True"
-                            IsSnapToTickEnabled="False" TickFrequency="1">
+                            IsSnapToTickEnabled="False" TickFrequency="1"
+                            Visibility="{Binding Toolbar.ShowCheckmark, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                         <Slider.Style>
                             <Style TargetType="Slider">
                                 <Setter Property="Template">
