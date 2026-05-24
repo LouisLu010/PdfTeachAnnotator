@@ -24,9 +24,9 @@
 
         <!-- Icon button style: 32x32 square button with vector icon -->
         <Style x:Key="IconButtonStyle" TargetType="Button">
-            <Setter Property="Width" Value="34"/>
-            <Setter Property="Height" Value="30"/>
-            <Setter Property="Margin" Value="2,0"/>
+            <Setter Property="Width" Value="36"/>
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="Margin" Value="3,0"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -35,16 +35,16 @@
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="Bd" Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="1" CornerRadius="4">
+                                BorderThickness="1" CornerRadius="6">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#E0EAF8"/>
-                                <Setter TargetName="Bd" Property="BorderBrush" Value="#A0C0E8"/>
+                                <Setter TargetName="Bd" Property="Background" Value="#E3F2FD"/>
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="#90CAF9"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#C0D8F0"/>
+                                <Setter TargetName="Bd" Property="Background" Value="#BBDEFB"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -54,9 +54,9 @@
 
         <!-- Icon toggle button style -->
         <Style x:Key="IconToggleButtonStyle" TargetType="ToggleButton">
-            <Setter Property="Width" Value="34"/>
-            <Setter Property="Height" Value="30"/>
-            <Setter Property="Margin" Value="2,0"/>
+            <Setter Property="Width" Value="36"/>
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="Margin" Value="3,0"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -65,17 +65,17 @@
                     <ControlTemplate TargetType="ToggleButton">
                         <Border x:Name="Bd" Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="1" CornerRadius="4">
+                                BorderThickness="1" CornerRadius="6">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#E0EAF8"/>
-                                <Setter TargetName="Bd" Property="BorderBrush" Value="#A0C0E8"/>
+                                <Setter TargetName="Bd" Property="Background" Value="#E3F2FD"/>
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="#90CAF9"/>
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="Bd" Property="Background" Value="#B8D4F0"/>
-                                <Setter TargetName="Bd" Property="BorderBrush" Value="#4A90D9"/>
+                                <Setter TargetName="Bd" Property="Background" Value="#2196F3"/>
+                                <Setter TargetName="Bd" Property="BorderBrush" Value="#1976D2"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -84,42 +84,54 @@
         </Style>
     </Window.Resources>
     <DockPanel>
-        <Menu DockPanel.Dock="Top">
-            <MenuItem Header="文件(_F)">
-                <MenuItem Header="打开 PDF..." Command="{Binding OpenFileCommand}" InputGestureText="Ctrl+O"/>
-                <MenuItem Header="保存批注" Command="{Binding SaveCommand}" InputGestureText="Ctrl+S"/>
+        <Menu DockPanel.Dock="Top" Background="#FFFFFF" Padding="8,4">
+            <MenuItem Header="文件(_F)" Foreground="#2C3E50" FontWeight="Medium">
+                <MenuItem Header="打开 PDF..." Command="{Binding OpenFileCommand}" InputGestureText="Ctrl+O">
+                    <MenuItem.Icon>
+                        <Path Data="{StaticResource IconOpen}" Fill="#3498DB" Width="16" Height="16" Stretch="Uniform"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem Header="保存批注" Command="{Binding SaveCommand}" InputGestureText="Ctrl+S">
+                    <MenuItem.Icon>
+                        <Path Data="{StaticResource IconSave}" Fill="#27AE60" Width="16" Height="16" Stretch="Uniform"/>
+                    </MenuItem.Icon>
+                </MenuItem>
                 <Separator/>
-                <MenuItem Header="退出" Click="Exit_Click"/>
+                <MenuItem Header="退出" Click="Exit_Click">
+                    <MenuItem.Icon>
+                        <Path Data="{StaticResource IconExit}" Fill="#E74C3C" Width="16" Height="16" Stretch="Uniform"/>
+                    </MenuItem.Icon>
+                </MenuItem>
             </MenuItem>
         </Menu>
 
         <!-- Annotation Toolbar -->
-        <ToolBarTray DockPanel.Dock="Top" Background="#F5F7FA">
-            <ToolBar Background="#F5F7FA">
+        <ToolBarTray DockPanel.Dock="Top" Background="White">
+            <ToolBar Background="White" Padding="12,8">
                 <Button Style="{StaticResource IconButtonStyle}" Command="{Binding OpenFileCommand}" ToolTip="打开 PDF (Ctrl+O)">
-                    <Path Data="{StaticResource IconOpen}" Fill="#5A6470" Width="20" Height="20" Stretch="Uniform"/>
+                    <Path Data="{StaticResource IconOpen}" Fill="#3498DB" Width="20" Height="20" Stretch="Uniform"/>
                 </Button>
                 <Button Style="{StaticResource IconButtonStyle}" Command="{Binding SaveCommand}" ToolTip="保存批注 (Ctrl+S)">
-                    <Path Data="{StaticResource IconSave}" Fill="#5A6470" Width="20" Height="20" Stretch="Uniform"/>
+                    <Path Data="{StaticResource IconSave}" Fill="#27AE60" Width="20" Height="20" Stretch="Uniform"/>
                 </Button>
-                <Separator/>
+                <Separator Margin="8,0"/>
                 <ToggleButton Style="{StaticResource IconToggleButtonStyle}"
                               IsChecked="{Binding Toolbar.IsPenActive, Mode=OneWay}"
                               Command="{Binding Toolbar.SelectPenCommand}" ToolTip="画笔">
-                    <Path Data="{StaticResource IconPen}" Fill="#5A6470" Width="20" Height="20" Stretch="Uniform"/>
+                    <Path Data="{StaticResource IconPen}" Fill="#3498DB" Width="20" Height="20" Stretch="Uniform"/>
                 </ToggleButton>
                 <ToggleButton Style="{StaticResource IconToggleButtonStyle}"
                               IsChecked="{Binding Toolbar.IsEraserActive, Mode=OneWay}"
                               Command="{Binding Toolbar.SelectEraserCommand}" ToolTip="橡皮">
-                    <Path Data="{StaticResource IconEraser}" Fill="#5A6470" Width="20" Height="20" Stretch="Uniform"/>
+                    <Path Data="{StaticResource IconEraser}" Fill="#95A5A6" Width="20" Height="20" Stretch="Uniform"/>
                 </ToggleButton>
                 <Button Style="{StaticResource IconButtonStyle}" Command="{Binding Toolbar.ClearAllCommand}" ToolTip="清空所有批注">
-                    <Path Data="{StaticResource IconClear}" Fill="#D9534F" Width="20" Height="20" Stretch="Uniform"/>
+                    <Path Data="{StaticResource IconClear}" Fill="#E74C3C" Width="20" Height="20" Stretch="Uniform"/>
                 </Button>
-                <Separator/>
+                <Separator Margin="8,0"/>
                 <!-- Color Palette -->
-                <TextBlock Text="颜色" VerticalAlignment="Center" Margin="6,0,4,0" Foreground="#5A6470"/>
-                <ItemsControl ItemsSource="{Binding Toolbar.PenColors}" Margin="2,0">
+                <TextBlock Text="颜色" VerticalAlignment="Center" Margin="8,0,8,0" Foreground="#34495E" FontWeight="SemiBold" FontSize="13"/>
+                <ItemsControl ItemsSource="{Binding Toolbar.PenColors}" Margin="4,0">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <StackPanel Orientation="Horizontal"/>
@@ -127,9 +139,12 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border Width="26" Height="26" Margin="2" BorderThickness="2.5" Cursor="Hand" CornerRadius="13"
+                            <Border Width="28" Height="28" Margin="3" BorderThickness="3" Cursor="Hand" CornerRadius="14"
                                     Background="{Binding Converter={StaticResource ColorToBrushConverter}}"
                                     MouseLeftButtonDown="ColorSwatch_Click" Tag="{Binding}">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="#000000" BlurRadius="4" ShadowDepth="1" Opacity="0.2"/>
+                                </Border.Effect>
                                 <Border.BorderBrush>
                                     <MultiBinding Converter="{StaticResource ColorSelectedConverter}">
                                         <Binding/>
@@ -140,28 +155,28 @@
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
-                <Separator/>
+                <Separator Margin="8,0"/>
                 <!-- Pen Size -->
-                <TextBlock Text="笔粗" VerticalAlignment="Center" Margin="6,0,4,0" Foreground="#5A6470"/>
-                <Slider Value="{Binding Toolbar.PenSize}" Minimum="1" Maximum="20" Width="70"
-                        VerticalAlignment="Center" ToolTip="画笔粗细"/>
-                <Separator/>
+                <TextBlock Text="笔粗" VerticalAlignment="Center" Margin="8,0,6,0" Foreground="#34495E" FontWeight="SemiBold" FontSize="13"/>
+                <Slider Value="{Binding Toolbar.PenSize}" Minimum="1" Maximum="20" Width="80"
+                        VerticalAlignment="Center" ToolTip="画笔粗细" Foreground="#3498DB"/>
+                <Separator Margin="8,0"/>
                 <!-- Eraser Size -->
-                <TextBlock Text="擦头" VerticalAlignment="Center" Margin="6,0,4,0" Foreground="#5A6470"/>
-                <Slider Value="{Binding Toolbar.EraserSize}" Minimum="5" Maximum="50" Width="80"
-                        VerticalAlignment="Center" ToolTip="橡皮大小"/>
-                <Separator/>
+                <TextBlock Text="擦头" VerticalAlignment="Center" Margin="8,0,6,0" Foreground="#34495E" FontWeight="SemiBold" FontSize="13"/>
+                <Slider Value="{Binding Toolbar.EraserSize}" Minimum="5" Maximum="50" Width="90"
+                        VerticalAlignment="Center" ToolTip="橡皮大小" Foreground="#95A5A6"/>
+                <Separator Margin="8,0"/>
                 <!-- Zoom -->
                 <Button Style="{StaticResource IconButtonStyle}" Command="{Binding ZoomOutCommand}" ToolTip="缩小">
-                    <Path Data="{StaticResource IconZoomOut}" Fill="#5A6470" Width="20" Height="20" Stretch="Uniform"/>
+                    <Path Data="{StaticResource IconZoomOut}" Fill="#7F8C8D" Width="20" Height="20" Stretch="Uniform"/>
                 </Button>
-                <TextBlock Text="{Binding ZoomPercent}" VerticalAlignment="Center" Margin="6,0" MinWidth="44"
-                           TextAlignment="Center" Foreground="#3A4452" FontWeight="SemiBold"/>
+                <TextBlock Text="{Binding ZoomPercent}" VerticalAlignment="Center" Margin="8,0" MinWidth="50"
+                           TextAlignment="Center" Foreground="#2C3E50" FontWeight="Bold" FontSize="14"/>
                 <Button Style="{StaticResource IconButtonStyle}" Command="{Binding ZoomInCommand}" ToolTip="放大">
-                    <Path Data="{StaticResource IconZoomIn}" Fill="#5A6470" Width="20" Height="20" Stretch="Uniform"/>
+                    <Path Data="{StaticResource IconZoomIn}" Fill="#7F8C8D" Width="20" Height="20" Stretch="Uniform"/>
                 </Button>
                 <Button Style="{StaticResource IconButtonStyle}" Command="{Binding ZoomResetCommand}" ToolTip="重置缩放">
-                    <Path Data="{StaticResource IconZoomReset}" Fill="#5A6470" Width="20" Height="20" Stretch="Uniform"/>
+                    <Path Data="{StaticResource IconZoomReset}" Fill="#7F8C8D" Width="20" Height="20" Stretch="Uniform"/>
                 </Button>
             </ToolBar>
         </ToolBarTray>
@@ -172,7 +187,7 @@
                       VerticalScrollBarVisibility="Auto"
                       PreviewMouseWheel="ScrollViewer_PreviewMouseWheel"
                       SizeChanged="ScrollViewer_SizeChanged"
-                      Background="#E8ECF0">
+                      Background="#F8F9FA">
             <ItemsControl ItemsSource="{Binding Pages}" x:Name="PagesControl">
                 <ItemsControl.LayoutTransform>
                     <ScaleTransform ScaleX="{Binding ZoomLevel}" ScaleY="{Binding ZoomLevel}"/>
@@ -184,10 +199,10 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border Margin="0,6" HorizontalAlignment="Center" Background="White"
-                                BorderBrush="#D0D6DC" BorderThickness="1">
+                        <Border Margin="0,10" HorizontalAlignment="Center" Background="White"
+                                BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="4">
                             <Border.Effect>
-                                <DropShadowEffect Color="#202020" BlurRadius="8" ShadowDepth="2" Opacity="0.15"/>
+                                <DropShadowEffect Color="#000000" BlurRadius="12" ShadowDepth="3" Opacity="0.15"/>
                             </Border.Effect>
                             <Grid HorizontalAlignment="Center">
                                 <Image Source="{Binding Image}" Stretch="None"/>
