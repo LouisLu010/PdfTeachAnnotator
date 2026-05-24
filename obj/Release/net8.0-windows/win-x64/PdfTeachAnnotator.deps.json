@@ -10,6 +10,7 @@
       "PdfTeachAnnotator/1.0.0": {
         "dependencies": {
           "Docnet.Core": "2.6.0",
+          "WPF-UI": "3.0.5",
           "runtimepack.Microsoft.NETCore.App.Runtime.win-x64": "8.0.25",
           "runtimepack.Microsoft.WindowsDesktop.App.Runtime.win-x64": "8.0.25"
         },
@@ -933,6 +934,14 @@
             "fileVersion": "110.0.5445.0"
           }
         }
+      },
+      "WPF-UI/3.0.5": {
+        "runtime": {
+          "lib/net8.0-windows7.0/Wpf.Ui.dll": {
+            "assemblyVersion": "3.0.5.0",
+            "fileVersion": "3.0.5.0"
+          }
+        }
       }
     }
   },
@@ -958,6 +967,13 @@
       "sha512": "sha512-in7fpB16Zbdz7D7Qv+4QrapTKKOU1ub2XOvmVGVDEyEwnEZjlbGIiwmpfO03q/GDDEkDM/gIAumxK0U988qSsQ==",
       "path": "docnet.core/2.6.0",
       "hashPath": "docnet.core.2.6.0.nupkg.sha512"
+    },
+    "WPF-UI/3.0.5": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-vha596eFVZ0j/zjpPrYxqaBNZzr17ROOihQ/xqgTVPMx5cmHAVKPulbaUmHKXo0QHGkqvwaPNxYH/HTS/UroTQ==",
+      "path": "wpf-ui/3.0.5",
+      "hashPath": "wpf-ui.3.0.5.nupkg.sha512"
     }
   },
   "runtimes": {

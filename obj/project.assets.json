@@ -267,11 +267,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Louis\\Documents\\PdfTeachAnnotator\\src\\PdfTeachAnnotator\\PdfTeachAnnotator.csproj",
+      "projectUniqueName": "C:\\Users\\Louis\\Documents\\PdfTeachAnnotator\\PdfTeachAnnotator.csproj",
       "projectName": "PdfTeachAnnotator",
-      "projectPath": "C:\\Users\\Louis\\Documents\\PdfTeachAnnotator\\src\\PdfTeachAnnotator\\PdfTeachAnnotator.csproj",
+      "projectPath": "C:\\Users\\Louis\\Documents\\PdfTeachAnnotator\\PdfTeachAnnotator.csproj",
       "packagesPath": "C:\\Users\\Louis\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Louis\\Documents\\PdfTeachAnnotator\\src\\PdfTeachAnnotator\\obj\\",
+      "outputPath": "C:\\Users\\Louis\\Documents\\PdfTeachAnnotator\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

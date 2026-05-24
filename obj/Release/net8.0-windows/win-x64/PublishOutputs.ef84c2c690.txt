@@ -1,0 +1,3 @@
+C:\Users\Louis\Documents\PdfTeachAnnotator\bin\Release\net8.0-windows\win-x64\publish\PdfTeachAnnotator.pdb
+C:\Users\Louis\Documents\PdfTeachAnnotator\bin\Release\net8.0-windows\win-x64\publish\LICENSE
+C:\Users\Louis\Documents\PdfTeachAnnotator\bin\Release\net8.0-windows\win-x64\publish\PdfTeachAnnotator.exe
