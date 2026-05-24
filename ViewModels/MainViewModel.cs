@@ -146,12 +146,31 @@ public class MainViewModel : ViewModelBase, IDisposable
 
     private void ReloadPages()
     {
+        // Save existing strokes before clearing
+        var existingStrokes = new Dictionary<int, System.Windows.Ink.StrokeCollection>();
+        foreach (var page in Pages)
+        {
+            if (page.Strokes.Count > 0)
+            {
+                existingStrokes[page.PageIndex] = new System.Windows.Ink.StrokeCollection(page.Strokes);
+            }
+        }
+
         Pages.Clear();
         int targetWidth = Math.Max(400, _viewportWidth - 40);
         var rendered = _pdfService.RenderAllPages(targetWidth);
         for (int i = 0; i < rendered.Count; i++)
         {
-            Pages.Add(new PageModel { PageIndex = i, Image = rendered[i] });
+            var pageModel = new PageModel { PageIndex = i, Image = rendered[i] };
+
+            // Restore strokes if they existed
+            if (existingStrokes.TryGetValue(i, out var strokes))
+            {
+                foreach (var stroke in strokes)
+                    pageModel.Strokes.Add(stroke);
+            }
+
+            Pages.Add(pageModel);
         }
     }
 
