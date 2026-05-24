@@ -14,6 +14,7 @@ public class MainViewModel : ViewModelBase, IDisposable
     private int _viewportWidth = 800;
     private double _zoomLevel = 1.0;
     private string _currentView = "Home";
+    private string _previousView = "Home";
 
     public ObservableCollection<PageModel> Pages { get; } = new();
     public ToolbarViewModel Toolbar { get; } = new();
@@ -32,6 +33,12 @@ public class MainViewModel : ViewModelBase, IDisposable
                 OnPropertyChanged(nameof(IsSettingsView));
             }
         }
+    }
+
+    public string PreviousView
+    {
+        get => _previousView;
+        set => SetField(ref _previousView, value);
     }
 
     public bool IsHomeView => CurrentView == "Home";
@@ -74,6 +81,7 @@ public class MainViewModel : ViewModelBase, IDisposable
     public ICommand SaveCommand { get; }
     public ICommand ShowHomeCommand { get; }
     public ICommand ShowSettingsCommand { get; }
+    public ICommand GoBackCommand { get; }
 
     public MainViewModel()
     {
@@ -82,8 +90,17 @@ public class MainViewModel : ViewModelBase, IDisposable
         ZoomOutCommand = new RelayCommand(() => ZoomLevel -= 0.1);
         ZoomResetCommand = new RelayCommand(() => ZoomLevel = 1.0);
         SaveCommand = new RelayCommand(SaveAnnotations);
-        ShowHomeCommand = new RelayCommand(() => CurrentView = "Home");
-        ShowSettingsCommand = new RelayCommand(() => CurrentView = "Settings");
+        ShowHomeCommand = new RelayCommand(() =>
+        {
+            PreviousView = CurrentView;
+            CurrentView = "Home";
+        });
+        ShowSettingsCommand = new RelayCommand(() =>
+        {
+            PreviousView = CurrentView;
+            CurrentView = "Settings";
+        });
+        GoBackCommand = new RelayCommand(() => CurrentView = PreviousView);
         Toolbar.ClearAllRequested += ClearAllStrokes;
 
         LoadRecentFiles();
