@@ -207,25 +207,25 @@
         <!-- Clear Slider Panel -->
         <Border DockPanel.Dock="Top" Background="#FFF3CD" BorderBrush="#FFC107" BorderThickness="0,0,0,2"
                 Padding="20,12" Visibility="{Binding Toolbar.ShowClearSlider, Converter={StaticResource BoolToVisibilityConverter}}">
-            <Grid MaxWidth="800" HorizontalAlignment="Center">
+            <Grid MaxWidth="900" HorizontalAlignment="Center">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*" MinWidth="400"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,20,0">
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,30,0">
                     <Path Data="M13,14H11V10H13M13,18H11V16H13M1,21H23L12,2L1,21Z" Fill="#FF9800" Width="24" Height="24" Stretch="Uniform" Margin="0,0,12,0"/>
                     <TextBlock Text="滑动到右侧以清空所有批注" FontSize="14" FontWeight="SemiBold" Foreground="#856404" VerticalAlignment="Center"/>
                 </StackPanel>
 
-                <Grid Grid.Column="1" Margin="0,0,20,0" Height="50">
+                <Grid Grid.Column="1" Margin="0,0,40,0" Height="60">
                     <!-- Background Track (light orange) -->
-                    <Border Background="#FFE5B4" CornerRadius="20" Height="12" VerticalAlignment="Center"/>
+                    <Border Background="#FFE5B4" CornerRadius="20" Height="14" VerticalAlignment="Center" Margin="22,0"/>
 
                     <!-- Progress Track (dark orange, grows with slider) -->
-                    <Border Background="#FF9800" CornerRadius="20" Height="12"
-                            VerticalAlignment="Center" HorizontalAlignment="Left">
+                    <Border Background="#FF9800" CornerRadius="20,0,0,20" Height="14"
+                            VerticalAlignment="Center" HorizontalAlignment="Left" Margin="22,0,0,0">
                         <Border.Width>
                             <MultiBinding Converter="{StaticResource SliderProgressConverter}">
                                 <Binding Path="Toolbar.ClearSliderValue"/>
@@ -234,9 +234,10 @@
                         </Border.Width>
                     </Border>
 
-                    <!-- Slider (transparent track, only thumb visible) -->
+                    <!-- Slider -->
                     <Slider Value="{Binding Toolbar.ClearSliderValue}" Minimum="0" Maximum="100"
-                            VerticalAlignment="Center" IsMoveToPointEnabled="True">
+                            VerticalAlignment="Center" IsMoveToPointEnabled="True"
+                            IsSnapToTickEnabled="False" TickFrequency="1">
                         <Slider.Style>
                             <Style TargetType="Slider">
                                 <Setter Property="Template">
@@ -245,16 +246,16 @@
                                             <Grid>
                                                 <Track x:Name="PART_Track">
                                                     <Track.DecreaseRepeatButton>
-                                                        <RepeatButton Opacity="0" Command="{x:Static Slider.DecreaseLarge}"/>
+                                                        <RepeatButton Command="Slider.DecreaseLarge" Background="Transparent" BorderThickness="0"/>
                                                     </Track.DecreaseRepeatButton>
                                                     <Track.IncreaseRepeatButton>
-                                                        <RepeatButton Opacity="0" Command="{x:Static Slider.IncreaseLarge}"/>
+                                                        <RepeatButton Command="Slider.IncreaseLarge" Background="Transparent" BorderThickness="0"/>
                                                     </Track.IncreaseRepeatButton>
                                                     <Track.Thumb>
-                                                        <Thumb Width="44" Height="44">
+                                                        <Thumb Width="44" Height="44" Cursor="Hand">
                                                             <Thumb.Template>
                                                                 <ControlTemplate TargetType="Thumb">
-                                                                    <Border Background="#FF9800" CornerRadius="22" BorderBrush="White" BorderThickness="3">
+                                                                    <Border Background="#FF9800" CornerRadius="22" BorderBrush="White" BorderThickness="3" Cursor="Hand">
                                                                         <Border.Effect>
                                                                             <DropShadowEffect Color="#000000" BlurRadius="12" ShadowDepth="3" Opacity="0.4"/>
                                                                         </Border.Effect>
@@ -276,8 +277,8 @@
                     </Slider>
                 </Grid>
 
-                <Button Grid.Column="2" Command="{Binding Toolbar.ToggleClearSliderCommand}" Padding="12,8"
-                        Background="Transparent" BorderBrush="#856404" BorderThickness="1" Cursor="Hand">
+                <Button Grid.Column="2" Command="{Binding Toolbar.ToggleClearSliderCommand}" Padding="16,10"
+                        Background="Transparent" BorderBrush="#856404" BorderThickness="2" Cursor="Hand">
                     <Button.Style>
                         <Style TargetType="Button">
                             <Setter Property="Template">
@@ -286,7 +287,7 @@
                                         <Border Background="{TemplateBinding Background}"
                                                 BorderBrush="{TemplateBinding BorderBrush}"
                                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                                CornerRadius="4" Padding="{TemplateBinding Padding}">
+                                                CornerRadius="6" Padding="{TemplateBinding Padding}">
                                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                         </Border>
                                         <ControlTemplate.Triggers>
@@ -299,7 +300,7 @@
                             </Setter>
                         </Style>
                     </Button.Style>
-                    <TextBlock Text="取消" FontWeight="SemiBold" Foreground="#856404"/>
+                    <TextBlock Text="取消" FontSize="14" FontWeight="SemiBold" Foreground="#856404"/>
                 </Button>
             </Grid>
         </Border>
