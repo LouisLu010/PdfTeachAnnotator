@@ -115,3 +115,18 @@ public class EraserSizeConverter : IValueConverter
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         => throw new NotSupportedException();
 }
+
+public class SizeEqualityConverter : IMultiValueConverter
+{
+    public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (values.Length == 2 && values[0] is double currentSize && values[1] is double buttonSize)
+        {
+            return Math.Abs(currentSize - buttonSize) < 0.01 ? Visibility.Visible : Visibility.Collapsed;
+        }
+        return Visibility.Collapsed;
+    }
+
+    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        => throw new NotSupportedException();
+}
