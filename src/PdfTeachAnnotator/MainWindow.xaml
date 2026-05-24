@@ -506,9 +506,9 @@
                             </ui:CardExpander>
 
                             <!-- Drawing Settings -->
-                            <ui:CardExpander Icon="{ui:SymbolIcon Draw24}" Header="绘图设置" IsExpanded="True" Margin="0,0,0,16">
+                            <ui:CardExpander Icon="{ui:SymbolIcon Edit24}" Header="绘图设置" IsExpanded="True" Margin="0,0,0,16">
                                 <StackPanel Margin="0,16,0,0">
-                                    <ui:CardControl Icon="{ui:SymbolIcon PenSettings24}">
+                                    <ui:CardControl Icon="{ui:SymbolIcon Pen24}">
                                         <ui:CardControl.Header>
                                             <StackPanel>
                                                 <TextBlock Text="默认画笔粗细" FontWeight="SemiBold"/>
@@ -522,7 +522,7 @@
                                                 TickFrequency="1" IsSnapToTickEnabled="True"/>
                                     </ui:CardControl>
 
-                                    <ui:CardControl Icon="{ui:SymbolIcon Eraser24}" Margin="0,8,0,0">
+                                    <ui:CardControl Icon="{ui:SymbolIcon Delete24}" Margin="0,8,0,0">
                                         <ui:CardControl.Header>
                                             <StackPanel>
                                                 <TextBlock Text="默认橡皮大小" FontWeight="SemiBold"/>
@@ -598,7 +598,7 @@
                             </ui:CardExpander>
 
                             <!-- Theme Settings -->
-                            <ui:CardExpander Icon="{ui:SymbolIcon PaintBrush24}" Header="外观" IsExpanded="True" Margin="0,0,0,32">
+                            <ui:CardExpander Icon="{ui:SymbolIcon Color24}" Header="外观" IsExpanded="True" Margin="0,0,0,32">
                                 <StackPanel Margin="0,16,0,0">
                                     <ui:CardControl Icon="{ui:SymbolIcon WeatherMoon24}">
                                         <ui:CardControl.Header>
