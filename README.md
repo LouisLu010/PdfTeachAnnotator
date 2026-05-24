@@ -89,9 +89,8 @@
 #### 方法 1：下载预编译版本（推荐）
 
 1. 前往 [Releases](https://github.com/yourusername/PdfTeachAnnotator/releases) 页面
-2. 下载最新版本的 `PdfTeachAnnotator-win-x64.zip`
-3. 解压到任意目录
-4. 运行 `PdfTeachAnnotator.exe`
+2. 下载最新版本的 `PdfTeachAnnotator.exe`
+3. 双击运行 `PdfTeachAnnotator.exe`
 
 #### 方法 2：从源码编译
 
