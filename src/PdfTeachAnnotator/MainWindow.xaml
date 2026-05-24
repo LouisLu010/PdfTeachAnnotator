@@ -209,7 +209,8 @@
                             <Button Command="{Binding DataContext.Toolbar.SetPenSizeCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                     CommandParameter="{Binding}"
                                     Width="32" Height="32" Margin="2,0" Cursor="Hand"
-                                    Background="Transparent" BorderThickness="0">
+                                    Background="Transparent" BorderThickness="0"
+                                    Tag="{Binding DataContext.Toolbar.PenSize, RelativeSource={RelativeSource AncestorType=Window}}">
                                 <Button.Style>
                                     <Style TargetType="Button">
                                         <Setter Property="Template">
@@ -228,9 +229,9 @@
                                                             <Setter TargetName="SelectionRing" Property="Visibility" Value="Visible"/>
                                                             <Setter TargetName="SelectionRing" Property="Stroke" Value="#3498DB"/>
                                                         </Trigger>
-                                                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.Toolbar.PenSize}" Value="{Binding}">
+                                                        <Trigger Property="Tag" Value="{Binding}">
                                                             <Setter TargetName="SelectionRing" Property="Visibility" Value="Visible"/>
-                                                        </DataTrigger>
+                                                        </Trigger>
                                                     </ControlTemplate.Triggers>
                                                 </ControlTemplate>
                                             </Setter.Value>
@@ -255,7 +256,8 @@
                             <Button Command="{Binding DataContext.Toolbar.SetEraserSizeCommand, RelativeSource={RelativeSource AncestorType=Window}}"
                                     CommandParameter="{Binding}"
                                     Width="40" Height="40" Margin="2,0" Cursor="Hand"
-                                    Background="Transparent" BorderThickness="0">
+                                    Background="Transparent" BorderThickness="0"
+                                    Tag="{Binding DataContext.Toolbar.EraserSize, RelativeSource={RelativeSource AncestorType=Window}}">
                                 <Button.Style>
                                     <Style TargetType="Button">
                                         <Setter Property="Template">
@@ -276,9 +278,9 @@
                                                             <Setter TargetName="SelectionRing" Property="Visibility" Value="Visible"/>
                                                             <Setter TargetName="SelectionRing" Property="Stroke" Value="#95A5A6"/>
                                                         </Trigger>
-                                                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.Toolbar.EraserSize}" Value="{Binding}">
+                                                        <Trigger Property="Tag" Value="{Binding}">
                                                             <Setter TargetName="SelectionRing" Property="Visibility" Value="Visible"/>
-                                                        </DataTrigger>
+                                                        </Trigger>
                                                     </ControlTemplate.Triggers>
                                                 </ControlTemplate>
                                             </Setter.Value>
