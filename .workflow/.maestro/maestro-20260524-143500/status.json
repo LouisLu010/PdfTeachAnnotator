@@ -1,0 +1,50 @@
+{
+  "session_id": "maestro-20260524-143500",
+  "created_at": "2026-05-24T14:35:00Z",
+  "intent": "continue",
+  "task_type": "state_continue",
+  "chain_name": "milestone-close",
+  "phase": null,
+  "auto_mode": false,
+  "exec_mode": "auto",
+  "cli_tool": "claude",
+  "context": {
+    "issue_id": null,
+    "milestone_num": 1,
+    "spec_session_id": null,
+    "scratch_dir": null,
+    "plan_dir": null,
+    "analysis_dir": null,
+    "brainstorm_dir": null
+  },
+  "source": "maestro",
+  "updated_at": "2026-05-24T14:35:10Z",
+  "milestone": "phase-1-full-application-build",
+  "lifecycle_position": null,
+  "target": null,
+  "waves": [],
+  "steps": [
+    {
+      "index": 0,
+      "skill": "maestro-milestone-audit",
+      "args": "",
+      "type": "skill",
+      "status": "running",
+      "started_at": "2026-05-24T14:35:10Z",
+      "completed_at": null,
+      "error": null
+    },
+    {
+      "index": 1,
+      "skill": "maestro-milestone-complete",
+      "args": "",
+      "type": "skill",
+      "status": "pending",
+      "started_at": null,
+      "completed_at": null,
+      "error": null
+    }
+  ],
+  "current_step": 0,
+  "status": "running"
+}

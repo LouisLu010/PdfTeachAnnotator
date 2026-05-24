@@ -10,6 +10,9 @@
         <local:ToolModeToEditingModeConverter x:Key="ToolModeConverter"/>
         <local:BoolToFontWeightConverter x:Key="BoolToFontWeight"/>
         <local:ColorSelectedConverter x:Key="ColorSelectedConverter"/>
+        <local:PenIconColorConverter x:Key="PenIconColorConverter"/>
+        <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <local:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
 
         <!-- Material-style vector icon geometries -->
         <Geometry x:Key="IconOpen">M19,20H4C2.89,20 2,19.1 2,18V6C2,4.89 2.89,4 4,4H10L12,6H19A2,2 0 0,1 21,8H4V18L6.14,10H22.14L20,18C19.79,18.84 19,20 19,20Z</Geometry>
@@ -86,6 +89,12 @@
     <DockPanel>
         <Menu DockPanel.Dock="Top" Background="#FFFFFF" Padding="8,4">
             <MenuItem Header="文件(_F)" Foreground="#2C3E50" FontWeight="Medium">
+                <MenuItem Header="主页" Command="{Binding ShowHomeCommand}">
+                    <MenuItem.Icon>
+                        <Path Data="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z" Fill="#3498DB" Width="16" Height="16" Stretch="Uniform"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <Separator/>
                 <MenuItem Header="打开 PDF..." Command="{Binding OpenFileCommand}" InputGestureText="Ctrl+O">
                     <MenuItem.Icon>
                         <Path Data="{StaticResource IconOpen}" Fill="#3498DB" Width="16" Height="16" Stretch="Uniform"/>
@@ -94,6 +103,12 @@
                 <MenuItem Header="保存批注" Command="{Binding SaveCommand}" InputGestureText="Ctrl+S">
                     <MenuItem.Icon>
                         <Path Data="{StaticResource IconSave}" Fill="#27AE60" Width="16" Height="16" Stretch="Uniform"/>
+                    </MenuItem.Icon>
+                </MenuItem>
+                <Separator/>
+                <MenuItem Header="设置" Command="{Binding ShowSettingsCommand}">
+                    <MenuItem.Icon>
+                        <Path Data="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.67 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z" Fill="#95A5A6" Width="16" Height="16" Stretch="Uniform"/>
                     </MenuItem.Icon>
                 </MenuItem>
                 <Separator/>
@@ -106,7 +121,7 @@
         </Menu>
 
         <!-- Annotation Toolbar -->
-        <ToolBarTray DockPanel.Dock="Top" Background="White">
+        <ToolBarTray DockPanel.Dock="Top" Background="White" Visibility="{Binding IsPdfView, Converter={StaticResource BoolToVisibilityConverter}}">
             <ToolBar Background="White" Padding="12,8">
                 <Button Style="{StaticResource IconButtonStyle}" Command="{Binding OpenFileCommand}" ToolTip="打开 PDF (Ctrl+O)">
                     <Path Data="{StaticResource IconOpen}" Fill="#3498DB" Width="20" Height="20" Stretch="Uniform"/>
@@ -118,7 +133,14 @@
                 <ToggleButton Style="{StaticResource IconToggleButtonStyle}"
                               IsChecked="{Binding Toolbar.IsPenActive, Mode=OneWay}"
                               Command="{Binding Toolbar.SelectPenCommand}" ToolTip="画笔">
-                    <Path Data="{StaticResource IconPen}" Fill="#3498DB" Width="20" Height="20" Stretch="Uniform"/>
+                    <Path Data="{StaticResource IconPen}" Width="20" Height="20" Stretch="Uniform">
+                        <Path.Fill>
+                            <MultiBinding Converter="{StaticResource PenIconColorConverter}">
+                                <Binding Path="Toolbar.IsPenActive"/>
+                                <Binding Path="Toolbar.SelectedColor"/>
+                            </MultiBinding>
+                        </Path.Fill>
+                    </Path>
                 </ToggleButton>
                 <ToggleButton Style="{StaticResource IconToggleButtonStyle}"
                               IsChecked="{Binding Toolbar.IsEraserActive, Mode=OneWay}"
@@ -181,13 +203,298 @@
             </ToolBar>
         </ToolBarTray>
 
-        <!-- PDF Content with InkCanvas overlay -->
-        <ScrollViewer x:Name="PdfScrollViewer"
-                      HorizontalScrollBarVisibility="Auto"
-                      VerticalScrollBarVisibility="Auto"
-                      PreviewMouseWheel="ScrollViewer_PreviewMouseWheel"
-                      SizeChanged="ScrollViewer_SizeChanged"
-                      Background="#F8F9FA">
+        <!-- Clear Slider Panel -->
+        <Border DockPanel.Dock="Top" Background="#FFF3CD" BorderBrush="#FFC107" BorderThickness="0,0,0,2"
+                Padding="20,12" Visibility="{Binding Toolbar.ShowClearSlider, Converter={StaticResource BoolToVisibilityConverter}}">
+            <Grid MaxWidth="600" HorizontalAlignment="Center">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,20,0">
+                    <Path Data="M13,14H11V10H13M13,18H11V16H13M1,21H23L12,2L1,21Z" Fill="#FF9800" Width="24" Height="24" Stretch="Uniform" Margin="0,0,12,0"/>
+                    <TextBlock Text="滑动到右侧以清空所有批注" FontSize="14" FontWeight="SemiBold" Foreground="#856404" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <Slider Grid.Column="1" Value="{Binding Toolbar.ClearSliderValue}" Minimum="0" Maximum="100"
+                        VerticalAlignment="Center" Margin="0,0,20,0" Height="40">
+                    <Slider.Resources>
+                        <Style TargetType="Thumb">
+                            <Setter Property="Width" Value="36"/>
+                            <Setter Property="Height" Value="36"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Thumb">
+                                        <Border Background="#FF9800" CornerRadius="18" BorderBrush="White" BorderThickness="3">
+                                            <Border.Effect>
+                                                <DropShadowEffect Color="#000000" BlurRadius="8" ShadowDepth="2" Opacity="0.3"/>
+                                            </Border.Effect>
+                                            <Path Data="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"
+                                                  Fill="White" Width="16" Height="16" Stretch="Uniform"
+                                                  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Slider.Resources>
+                    <Slider.Style>
+                        <Style TargetType="Slider">
+                            <Setter Property="Foreground" Value="#FF9800"/>
+                            <Setter Property="Background" Value="#FFE5B4"/>
+                        </Style>
+                    </Slider.Style>
+                </Slider>
+
+                <Button Grid.Column="2" Command="{Binding Toolbar.ToggleClearSliderCommand}" Padding="12,8"
+                        Background="Transparent" BorderBrush="#856404" BorderThickness="1" Cursor="Hand">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="{TemplateBinding Background}"
+                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                BorderThickness="{TemplateBinding BorderThickness}"
+                                                CornerRadius="4" Padding="{TemplateBinding Padding}">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="#856404"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Button.Style>
+                    <TextBlock Text="取消" FontWeight="SemiBold" Foreground="#856404"/>
+                </Button>
+            </Grid>
+        </Border>
+
+        <!-- Multi-View Content Area -->
+        <Grid>
+            <!-- Home Page -->
+            <ContentControl Visibility="{Binding IsHomeView, Converter={StaticResource BoolToVisibilityConverter}}">
+                <ContentControl.Content>
+                    <Grid Background="#F8F9FA">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Header -->
+                        <Border Grid.Row="0" Background="White" Padding="40,30" BorderBrush="#E0E0E0" BorderThickness="0,0,0,1">
+                            <StackPanel>
+                                <TextBlock Text="PDF 教学批注工具" FontSize="32" FontWeight="Bold" Foreground="#2C3E50"/>
+                                <TextBlock Text="轻松为 PDF 添加批注和标记" FontSize="16" Foreground="#7F8C8D" Margin="0,8,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Content -->
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                            <StackPanel Margin="40,30">
+                                <!-- Quick Actions -->
+                                <TextBlock Text="快速操作" FontSize="20" FontWeight="SemiBold" Foreground="#34495E" Margin="0,0,0,16"/>
+                                <Button Command="{Binding OpenFileCommand}" Cursor="Hand" Background="White" BorderBrush="#E0E0E0"
+                                        BorderThickness="1" Padding="30,20" Margin="0,0,0,40" HorizontalAlignment="Left">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border Background="{TemplateBinding Background}"
+                                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                                BorderThickness="{TemplateBinding BorderThickness}"
+                                                                CornerRadius="8" Padding="{TemplateBinding Padding}">
+                                                            <Border.Effect>
+                                                                <DropShadowEffect Color="#000000" BlurRadius="8" ShadowDepth="2" Opacity="0.1"/>
+                                                            </Border.Effect>
+                                                            <ContentPresenter/>
+                                                        </Border>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter Property="Background" Value="#E3F2FD"/>
+                                                            </Trigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </Button.Style>
+                                    <StackPanel>
+                                        <Path Data="{StaticResource IconOpen}" Fill="#3498DB" Width="48" Height="48" Stretch="Uniform" HorizontalAlignment="Center"/>
+                                        <TextBlock Text="打开 PDF" FontSize="16" FontWeight="SemiBold" Foreground="#2C3E50"
+                                                   HorizontalAlignment="Center" Margin="0,12,0,0"/>
+                                        <TextBlock Text="浏览并打开 PDF 文件" FontSize="12" Foreground="#7F8C8D"
+                                                   HorizontalAlignment="Center" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </Button>
+
+                                <!-- Recent Files -->
+                                <TextBlock Text="最近访问" FontSize="20" FontWeight="SemiBold" Foreground="#34495E" Margin="0,0,0,16"/>
+
+                                <!-- Recent Files List -->
+                                <ItemsControl ItemsSource="{Binding RecentFiles}" Visibility="{Binding HasRecentFiles, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Button Tag="{Binding FilePath}" Click="RecentFile_Click" Cursor="Hand"
+                                                    Background="White" BorderBrush="#E0E0E0" BorderThickness="1"
+                                                    Padding="20" Margin="0,0,0,12" HorizontalContentAlignment="Stretch">
+                                                <Button.Style>
+                                                    <Style TargetType="Button">
+                                                        <Setter Property="Template">
+                                                            <Setter.Value>
+                                                                <ControlTemplate TargetType="Button">
+                                                                    <Border Background="{TemplateBinding Background}"
+                                                                            BorderBrush="{TemplateBinding BorderBrush}"
+                                                                            BorderThickness="{TemplateBinding BorderThickness}"
+                                                                            CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                                                        <Border.Effect>
+                                                                            <DropShadowEffect Color="#000000" BlurRadius="6" ShadowDepth="1" Opacity="0.08"/>
+                                                                        </Border.Effect>
+                                                                        <ContentPresenter/>
+                                                                    </Border>
+                                                                    <ControlTemplate.Triggers>
+                                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                                            <Setter Property="Background" Value="#F5F5F5"/>
+                                                                        </Trigger>
+                                                                    </ControlTemplate.Triggers>
+                                                                </ControlTemplate>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                    </Style>
+                                                </Button.Style>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <Path Grid.Column="0" Data="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"
+                                                          Fill="#E74C3C" Width="32" Height="32" Stretch="Uniform" Margin="0,0,16,0"/>
+
+                                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding FileName}" FontSize="15" FontWeight="SemiBold"
+                                                                   Foreground="#2C3E50" TextTrimming="CharacterEllipsis"/>
+                                                        <TextBlock FontSize="12" Foreground="#7F8C8D" Margin="0,4,0,0">
+                                                            <Run Text="{Binding PageCount, StringFormat='{}{0} 页', Mode=OneWay}"/>
+                                                            <Run Text=" • "/>
+                                                            <Run Text="{Binding LastAccessed, StringFormat='上次访问: {0:yyyy-MM-dd HH:mm}', Mode=OneWay}"/>
+                                                        </TextBlock>
+                                                    </StackPanel>
+
+                                                    <Path Grid.Column="2" Data="M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z"
+                                                          Fill="#BDC3C7" Width="24" Height="24" Stretch="Uniform" VerticalAlignment="Center"/>
+                                                </Grid>
+                                            </Button>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                                <!-- Empty State -->
+                                <Border Background="White" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="6"
+                                        Padding="40" Visibility="{Binding HasRecentFiles, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <StackPanel HorizontalAlignment="Center">
+                                        <Path Data="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"
+                                              Fill="#BDC3C7" Width="64" Height="64" Stretch="Uniform" HorizontalAlignment="Center"/>
+                                        <TextBlock Text="暂无最近文件" FontSize="16" Foreground="#7F8C8D"
+                                                   HorizontalAlignment="Center" Margin="0,16,0,0"/>
+                                        <TextBlock Text="打开一个 PDF 文件开始使用" FontSize="13" Foreground="#95A5A6"
+                                                   HorizontalAlignment="Center" Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Grid>
+                </ContentControl.Content>
+            </ContentControl>
+
+            <!-- Settings Page -->
+            <ContentControl Visibility="{Binding IsSettingsView, Converter={StaticResource BoolToVisibilityConverter}}">
+                <ContentControl.Content>
+                    <Grid Background="#F8F9FA">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <Border Grid.Row="0" Background="White" Padding="40,30" BorderBrush="#E0E0E0" BorderThickness="0,0,0,1">
+                            <StackPanel>
+                                <TextBlock Text="设置" FontSize="32" FontWeight="Bold" Foreground="#2C3E50"/>
+                                <TextBlock Text="自定义应用程序行为" FontSize="16" Foreground="#7F8C8D" Margin="0,8,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                            <StackPanel Margin="40,30" MaxWidth="700" HorizontalAlignment="Left">
+                                <TextBlock Text="常规设置" FontSize="20" FontWeight="SemiBold" Foreground="#34495E" Margin="0,0,0,16"/>
+
+                                <Border Background="White" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="6" Padding="24" Margin="0,0,0,20">
+                                    <Border.Effect>
+                                        <DropShadowEffect Color="#000000" BlurRadius="6" ShadowDepth="1" Opacity="0.08"/>
+                                    </Border.Effect>
+                                    <StackPanel>
+                                        <CheckBox IsChecked="{Binding Settings.AutoSaveAnnotations}" Foreground="#2C3E50" FontSize="14">
+                                            <TextBlock Text="自动保存批注" FontWeight="SemiBold"/>
+                                        </CheckBox>
+                                        <TextBlock Text="关闭文件时自动保存批注，无需手动保存" FontSize="12" Foreground="#7F8C8D" Margin="28,4,0,0"/>
+
+                                        <CheckBox IsChecked="{Binding Settings.ShowWelcomeScreen}" Foreground="#2C3E50" FontSize="14" Margin="0,20,0,0">
+                                            <TextBlock Text="启动时显示主页" FontWeight="SemiBold"/>
+                                        </CheckBox>
+                                        <TextBlock Text="应用启动时显示主页和最近文件" FontSize="12" Foreground="#7F8C8D" Margin="28,4,0,0"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <Button Click="SaveSettings_Click" Padding="24,12" HorizontalAlignment="Left"
+                                        Background="#27AE60" Foreground="White" BorderThickness="0" Cursor="Hand" Margin="0,20,0,40">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border Background="{TemplateBinding Background}"
+                                                                CornerRadius="6" Padding="{TemplateBinding Padding}">
+                                                            <Border.Effect>
+                                                                <DropShadowEffect Color="#000000" BlurRadius="8" ShadowDepth="2" Opacity="0.15"/>
+                                                            </Border.Effect>
+                                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        </Border>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter Property="Background" Value="#229954"/>
+                                                            </Trigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </Button.Style>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Path Data="{StaticResource IconSave}" Fill="White" Width="18" Height="18" Stretch="Uniform" Margin="0,0,10,0"/>
+                                        <TextBlock Text="保存设置" FontSize="15" FontWeight="SemiBold"/>
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Grid>
+                </ContentControl.Content>
+            </ContentControl>
+
+            <!-- PDF View (existing) -->
+            <ScrollViewer x:Name="PdfScrollViewer"
+                          Visibility="{Binding IsPdfView, Converter={StaticResource BoolToVisibilityConverter}}"
+                          HorizontalScrollBarVisibility="Auto"
+                          VerticalScrollBarVisibility="Auto"
+                          PreviewMouseWheel="ScrollViewer_PreviewMouseWheel"
+                          SizeChanged="ScrollViewer_SizeChanged"
+                          Background="#F8F9FA">
             <ItemsControl ItemsSource="{Binding Pages}" x:Name="PagesControl">
                 <ItemsControl.LayoutTransform>
                     <ScaleTransform ScaleX="{Binding ZoomLevel}" ScaleY="{Binding ZoomLevel}"/>
@@ -216,5 +523,6 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </ScrollViewer>
+        </Grid>
     </DockPanel>
 </Window>

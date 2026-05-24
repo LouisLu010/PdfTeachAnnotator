@@ -1,0 +1,83 @@
+{
+  "id": "TASK-002",
+  "title": "实现 PDF 渲染和缩放功能",
+  "description": "使用 Windows.Data.Pdf API 实现 PDF 文件加载、页面渲染、连续滚动显示和缩放功能。",
+
+  "issue_id": null,
+  "type": "feature",
+  "priority": "high",
+  "effort": "large",
+  "action": "重写 PdfRenderService 使用 Windows.Data.Pdf.PdfDocument API。实现 OpenDocument(StorageFile), GetPageCount(), RenderPageAsync(pageIndex, width) 方法，返回 SoftwareBitmap 或 WriteableBitmap。在 MainWindow.xaml 中使用 ScrollViewer + ItemsRepeater 显示 PDF 页面列表，每页为 Image + Border。实现缩放功能通过 ScrollViewer.ChangeView 和 Image.Width 调整。添加文件打开对话框（FileOpenPicker）和拖放支持。",
+  "status": "pending",
+
+  "scope": "src/PdfTeachAnnotatorWinUI",
+  "focus_paths": [
+    "src/PdfTeachAnnotatorWinUI/Services/PdfRenderService.cs",
+    "src/PdfTeachAnnotatorWinUI/MainWindow.xaml",
+    "src/PdfTeachAnnotatorWinUI/MainWindow.xaml.cs",
+    "src/PdfTeachAnnotatorWinUI/ViewModels/MainViewModel.cs"
+  ],
+
+  "read_first": [
+    "src/PdfTeachAnnotator/Services/PdfRenderService.cs",
+    "src/PdfTeachAnnotator/MainWindow.xaml",
+    "src/PdfTeachAnnotator/ViewModels/MainViewModel.cs",
+    ".workflow/scratch/20260524-plan-wpf-to-winui3/context.md"
+  ],
+
+  "depends_on": ["TASK-001"],
+  "wave": 2,
+  "executor": "agent",
+
+  "convergence": {
+    "criteria": [
+      "PdfRenderService.cs 包含 'using Windows.Data.Pdf'",
+      "PdfRenderService.cs 包含 'async Task<WriteableBitmap> RenderPageAsync'",
+      "MainWindow.xaml 包含 '<ScrollViewer' 和 '<ItemsRepeater'",
+      "MainViewModel.cs 包含 'ObservableCollection<PageModel> Pages'",
+      "MainViewModel.cs 包含 'OpenFileCommand' 和 'ZoomInCommand'",
+      "dotnet build src/PdfTeachAnnotatorWinUI 成功",
+      "应用可以打开 PDF 文件并显示所有页面"
+    ],
+    "verification": "dotnet build && dotnet run --project src/PdfTeachAnnotatorWinUI",
+    "definition_of_done": "应用可以打开 PDF，连续滚动显示所有页面，支持缩放（放大、缩小、重置）"
+  },
+
+  "files": [
+    {"path": "src/PdfTeachAnnotatorWinUI/Services/PdfRenderService.cs", "action": "modify", "target": "PDF rendering", "change": "重写为使用 Windows.Data.Pdf API"},
+    {"path": "src/PdfTeachAnnotatorWinUI/MainWindow.xaml", "action": "modify", "target": "UI layout", "change": "添加 MenuBar, ScrollViewer, ItemsRepeater 用于 PDF 显示"},
+    {"path": "src/PdfTeachAnnotatorWinUI/MainWindow.xaml.cs", "action": "modify", "target": "code-behind", "change": "添加文件拖放处理"},
+    {"path": "src/PdfTeachAnnotatorWinUI/ViewModels/MainViewModel.cs", "action": "modify", "target": "ViewModel", "change": "实现 OpenFileCommand, ZoomInCommand, ZoomOutCommand, ZoomResetCommand"}
+  ],
+
+  "implementation": [
+    "修改 PdfRenderService.cs: 移除 Docnet.Core 依赖，添加 using Windows.Data.Pdf 和 Windows.Storage",
+    "实现 OpenDocumentAsync(StorageFile file): 使用 PdfDocument.LoadFromFileAsync",
+    "实现 RenderPageAsync(int pageIndex, double width): 获取 PdfPage，使用 RenderToStreamAsync 渲染到 InMemoryRandomAccessStream，转换为 WriteableBitmap",
+    "在 MainViewModel 中实现 OpenFileCommand: 使用 FileOpenPicker 选择 PDF 文件，调用 PdfRenderService 渲染所有页面到 Pages 集合",
+    "在 MainWindow.xaml 中创建布局: MenuBar (文件菜单) + ScrollViewer (包含 ItemsRepeater)",
+    "ItemsRepeater.ItemTemplate: Border (白色背景 + 阴影) 包含 Image (显示页面位图)",
+    "实现缩放: ZoomLevel 属性绑定到 Image.Width，ZoomInCommand 增加 ZoomLevel，ZoomOutCommand 减少，ZoomResetCommand 重置为 1.0",
+    "添加拖放支持: MainWindow AllowDrop=True, DragOver 和 Drop 事件处理",
+    "测试: 打开 PDF 文件，验证所有页面显示，测试缩放功能"
+  ],
+
+  "test": {
+    "commands": ["dotnet build src/PdfTeachAnnotatorWinUI"],
+    "integration": ["打开 PDF 文件", "验证连续滚动", "测试缩放功能"],
+    "success_metrics": ["PDF 正确渲染", "缩放流畅", "拖放工作正常"]
+  },
+
+  "rationale": {
+    "chosen_approach": "使用 Windows.Data.Pdf 是 Windows 平台原生 API，无需第三方依赖，与 WinUI 3 集成更好。",
+    "tradeoffs": "Windows.Data.Pdf 功能可能不如 PDFium 丰富，但对于查看场景足够"
+  },
+
+  "risks": ["Windows.Data.Pdf 性能可能不如 PDFium", "大型 PDF 文件可能内存占用高"],
+
+  "meta": {
+    "estimated_time": "120min",
+    "risk": "medium",
+    "autonomous": true
+  }
+}

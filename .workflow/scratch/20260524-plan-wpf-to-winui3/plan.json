@@ -1,0 +1,70 @@
+{
+  "summary": "将 WPF PDF 教学批注工具迁移到 WinUI 3 平台，应用 Fluent Design 设计语言进行界面美化。分 5 个 wave 完成：项目骨架、PDF 渲染、批注功能、保存恢复、UI 美化。",
+  "approach": "创建新的 WinUI 3 项目，保持 MVVM 架构，逐步迁移 ViewModels 和 Services，重写 XAML 视图使用 Fluent Design 元素（Acrylic、圆角、阴影）。PDF 渲染优先使用 Windows.Data.Pdf，批注使用 WinUI 3 InkCanvas。",
+  "task_ids": ["TASK-001", "TASK-002", "TASK-003", "TASK-004", "TASK-005"],
+  "task_count": 5,
+  "complexity": "high",
+  "estimated_time": "6-8h",
+  "recommended_execution": "Sequential",
+
+  "waves": [
+    {
+      "wave": 1,
+      "label": "WinUI 3 Project Setup",
+      "tasks": ["TASK-001"]
+    },
+    {
+      "wave": 2,
+      "label": "PDF Rendering & Zoom",
+      "tasks": ["TASK-002"]
+    },
+    {
+      "wave": 3,
+      "label": "Annotation Tools",
+      "tasks": ["TASK-003"]
+    },
+    {
+      "wave": 4,
+      "label": "Save/Load Annotations",
+      "tasks": ["TASK-004"]
+    },
+    {
+      "wave": 5,
+      "label": "Fluent Design UI",
+      "tasks": ["TASK-005"]
+    }
+  ],
+
+  "design_decisions": [
+    "WinUI 3 项目使用 Windows App SDK，目标 Windows 10 1809+",
+    "保持现有 MVVM 架构，ViewModels 和 Services 代码最大化复用",
+    "PDF 渲染使用 Windows.Data.Pdf API（UWP），避免第三方依赖",
+    "批注使用 WinUI 3 InkCanvas，保持与 WPF 版本相同的 ISF 格式",
+    "Fluent Design 元素：Acrylic 背景、圆角按钮、阴影卡片、流畅动画"
+  ],
+
+  "shared_context": {
+    "patterns": ["MVVM with INotifyPropertyChanged", "RelayCommand for ICommand", "ItemsRepeater for virtualized lists"],
+    "conventions": ["C# .NET 8", "WinUI 3 XAML", "Services/ for business logic", "ViewModels/ for presentation", "Models/ for data"],
+    "dependencies": ["Microsoft.WindowsAppSDK", "Windows.Data.Pdf (built-in)", "Microsoft.Graphics.Win2D (for advanced rendering)"]
+  },
+
+  "confidence": {
+    "overall": 0.80,
+    "dimensions": {
+      "requirements_coverage": 0.95,
+      "task_quality": 0.85,
+      "dependency_correctness": 0.90,
+      "estimation_accuracy": 0.70,
+      "collision_safety": 1.0
+    }
+  },
+
+  "_metadata": {
+    "timestamp": "2026-05-24T14:45:00Z",
+    "source": "manual-planning",
+    "planning_mode": "full",
+    "plan_type": "migration",
+    "schema_version": "2.0"
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "id": "TASK-003",
+  "title": "实现批注工具（画笔、橡皮、清空、颜色选择）",
+  "description": "在每个 PDF 页面上叠加 InkCanvas，实现画笔、橡皮擦、清空功能，以及颜色和粗细选择。",
+
+  "issue_id": null,
+  "type": "feature",
+  "priority": "high",
+  "effort": "large",
+  "action": "在 ItemsRepeater 的 DataTemplate 中，为每个页面添加 InkCanvas 覆盖层。InkCanvas.InkPresenter 配置为支持画笔和橡皮模式。在 ToolbarViewModel 中实现工具切换逻辑（SelectPenCommand, SelectEraserCommand, ClearAllCommand）。画笔属性（颜色、粗细）通过 InkDrawingAttributes 设置。橡皮大小通过 InkPresenter.InputProcessingConfiguration.RightDragAction 配置。在 MainWindow.xaml 顶部添加 CommandBar 工具栏，包含工具按钮、颜色选择器（GridView 显示色板）、粗细滑块。",
+  "status": "pending",
+
+  "scope": "src/PdfTeachAnnotatorWinUI",
+  "focus_paths": [
+    "src/PdfTeachAnnotatorWinUI/MainWindow.xaml",
+    "src/PdfTeachAnnotatorWinUI/ViewModels/ToolbarViewModel.cs",
+    "src/PdfTeachAnnotatorWinUI/ViewModels/MainViewModel.cs",
+    "src/PdfTeachAnnotatorWinUI/Models/PageModel.cs"
+  ],
+
+  "read_first": [
+    "src/PdfTeachAnnotator/MainWindow.xaml",
+    "src/PdfTeachAnnotator/ViewModels/ToolbarViewModel.cs",
+    ".workflow/scratch/20260524-plan-wpf-to-winui3/context.md"
+  ],
+
+  "depends_on": ["TASK-002"],
+  "wave": 3,
+  "executor": "agent",
+
+  "convergence": {
+    "criteria": [
+      "MainWindow.xaml 包含 '<CommandBar'",
+      "MainWindow.xaml DataTemplate 包含 '<InkCanvas'",
+      "ToolbarViewModel.cs 包含 'SelectPenCommand' 和 'SelectEraserCommand'",
+      "ToolbarViewModel.cs 包含 'PenColors' 集合",
+      "ToolbarViewModel.cs 包含 'PenSize' 和 'EraserSize' 属性",
+      "PageModel.cs 包含 'InkStrokeContainer Strokes' 属性",
+      "dotnet build src/PdfTeachAnnotatorWinUI 成功",
+      "应用可以使用画笔在 PDF 上标注"
+    ],
+    "verification": "dotnet build && 手动测试画笔、橡皮、清空功能",
+    "definition_of_done": "可以选择画笔颜色和粗细在 PDF 上标注，可以使用橡皮擦除，可以一键清空所有批注"
+  },
+
+  "files": [
+    {"path": "src/PdfTeachAnnotatorWinUI/MainWindow.xaml", "action": "modify", "target": "UI", "change": "添加 CommandBar 工具栏和 InkCanvas 覆盖层"},
+    {"path": "src/PdfTeachAnnotatorWinUI/ViewModels/ToolbarViewModel.cs", "action": "modify", "target": "Toolbar logic", "change": "实现工具切换、颜色选择、粗细调节"},
+    {"path": "src/PdfTeachAnnotatorWinUI/Models/PageModel.cs", "action": "modify", "target": "Page model", "change": "添加 InkStrokeContainer 属性存储批注"}
+  ],
+
+  "implementation": [
+    "在 PageModel.cs 添加属性: public InkStrokeContainer Strokes { get; set; } = new InkStrokeContainer();",
+    "修改 MainWindow.xaml ItemsRepeater.ItemTemplate: 在 Image 上层叠加 <InkCanvas x:Name='PageInkCanvas' />",
+    "在 MainWindow.xaml 顶部添加 CommandBar，包含: AppBarButton (画笔、橡皮、清空图标), AppBarSeparator, 颜色选择器 (ItemsRepeater 显示圆形色块), Slider (笔粗、擦头)",
+    "在 ToolbarViewModel 中定义 PenColors 集合: Red, Blue, Green, Yellow, Black, White 等常用颜色",
+    "实现 SelectPenCommand: 设置 ActiveTool = ToolMode.Pen, 更新所有 InkCanvas.InkPresenter.InputDeviceTypes = CoreInputDeviceTypes.Mouse | Pen | Touch",
+    "实现 SelectEraserCommand: 设置 ActiveTool = ToolMode.Eraser, 配置 InkPresenter 为擦除模式",
+    "实现 ClearAllCommand: 遍历 Pages 集合，清空每个 PageModel.Strokes",
+    "绑定 PenSize 到 InkDrawingAttributes.Size, SelectedColor 到 InkDrawingAttributes.Color",
+    "绑定 EraserSize 到 InkPresenter 擦除配置",
+    "测试: 选择画笔颜色和粗细，在 PDF 上绘制，切换橡皮擦除，测试清空功能"
+  ],
+
+  "test": {
+    "commands": ["dotnet build src/PdfTeachAnnotatorWinUI"],
+    "integration": ["画笔标注", "颜色切换", "粗细调节", "橡皮擦除", "清空批注"],
+    "success_metrics": ["画笔流畅", "颜色正确", "橡皮工作", "清空成功"]
+  },
+
+  "rationale": {
+    "chosen_approach": "WinUI 3 InkCanvas 与 WPF 版本 API 相似，可以复用大部分逻辑。每页独立的 InkStrokeContainer 便于保存和恢复。",
+    "tradeoffs": "InkCanvas 性能依赖于页面数量，大型 PDF 可能需要虚拟化优化"
+  },
+
+  "risks": ["InkCanvas 在 ItemsRepeater 中的事件处理可能复杂", "触摸和鼠标输入需要正确配置"],
+
+  "meta": {
+    "estimated_time": "120min",
+    "risk": "medium",
+    "autonomous": true
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "id": "TASK-004",
+  "title": "实现批注保存和恢复功能",
+  "description": "实现批注文件的保存和加载功能，保持与 WPF 版本的文件格式兼容（ISF + JSON）。",
+
+  "issue_id": null,
+  "type": "feature",
+  "priority": "high",
+  "effort": "medium",
+  "action": "在 AnnotationFileService 中实现 SaveAnnotationsAsync(StorageFile, Pages) 和 LoadAnnotationsAsync(StorageFile, Pages) 方法。保存时遍历所有页面的 InkStrokeContainer，使用 SaveAsync 序列化为 ISF 格式，连同页面索引和元数据打包为 JSON 文件。加载时解析 JSON，为每个页面的 InkStrokeContainer 调用 LoadAsync 恢复笔迹。在 MainViewModel 中实现 SaveCommand 和自动加载逻辑（打开 PDF 时检查同名 .annotations 文件）。添加 FileSavePicker 用于选择保存位置。",
+  "status": "pending",
+
+  "scope": "src/PdfTeachAnnotatorWinUI",
+  "focus_paths": [
+    "src/PdfTeachAnnotatorWinUI/Services/AnnotationFileService.cs",
+    "src/PdfTeachAnnotatorWinUI/ViewModels/MainViewModel.cs",
+    "src/PdfTeachAnnotatorWinUI/Models/AnnotationFile.cs"
+  ],
+
+  "read_first": [
+    "src/PdfTeachAnnotator/Services/AnnotationFileService.cs",
+    "src/PdfTeachAnnotator/Models/AnnotationFile.cs",
+    ".workflow/scratch/20260524-plan-wpf-to-winui3/context.md"
+  ],
+
+  "depends_on": ["TASK-003"],
+  "wave": 4,
+  "executor": "agent",
+
+  "convergence": {
+    "criteria": [
+      "AnnotationFileService.cs 包含 'async Task SaveAnnotationsAsync'",
+      "AnnotationFileService.cs 包含 'async Task LoadAnnotationsAsync'",
+      "MainViewModel.cs 包含 'SaveCommand' 实现",
+      "MainViewModel.cs 在 OpenFileCommand 中包含自动加载批注逻辑",
+      "AnnotationFile.cs 包含 'PageAnnotations' 集合",
+      "dotnet build src/PdfTeachAnnotatorWinUI 成功",
+      "可以保存批注并重新加载"
+    ],
+    "verification": "dotnet build && 手动测试保存和加载批注",
+    "definition_of_done": "可以保存批注到文件，重新打开 PDF 时自动恢复批注，与 WPF 版本的批注文件兼容"
+  },
+
+  "files": [
+    {"path": "src/PdfTeachAnnotatorWinUI/Services/AnnotationFileService.cs", "action": "modify", "target": "Save/Load logic", "change": "实现异步保存和加载方法"},
+    {"path": "src/PdfTeachAnnotatorWinUI/ViewModels/MainViewModel.cs", "action": "modify", "target": "Commands", "change": "实现 SaveCommand 和自动加载逻辑"},
+    {"path": "src/PdfTeachAnnotatorWinUI/Models/AnnotationFile.cs", "action": "modify", "target": "Data model", "change": "定义批注文件结构"}
+  ],
+
+  "implementation": [
+    "在 AnnotationFile.cs 定义数据结构: { PdfFileName, PageCount, PageAnnotations: [{ PageIndex, InkData (base64 ISF) }] }",
+    "实现 SaveAnnotationsAsync: 使用 FileSavePicker 选择保存位置（默认 {pdfname}.annotations）",
+    "遍历 Pages 集合，对每个 PageModel.Strokes 调用 SaveAsync(stream) 序列化为 ISF 格式",
+    "将 ISF 数据转换为 base64 字符串，连同 PageIndex 存入 PageAnnotations 数组",
+    "使用 System.Text.Json 序列化 AnnotationFile 对象，写入文件",
+    "实现 LoadAnnotationsAsync: 读取 JSON 文件，反序列化为 AnnotationFile 对象",
+    "验证 PdfFileName 和 PageCount 匹配当前 PDF",
+    "遍历 PageAnnotations，将 base64 ISF 数据解码为 stream，调用 InkStrokeContainer.LoadAsync(stream) 恢复笔迹",
+    "在 MainViewModel.OpenFileCommand 中，打开 PDF 后检查是否存在 {pdfname}.annotations 文件，如果存在自动调用 LoadAnnotationsAsync",
+    "在 MainWindow.xaml MenuBar 添加 '保存批注' 菜单项，绑定到 SaveCommand",
+    "测试: 标注 PDF，保存批注，关闭应用，重新打开 PDF，验证批注恢复"
+  ],
+
+  "test": {
+    "commands": ["dotnet build src/PdfTeachAnnotatorWinUI"],
+    "integration": ["保存批注", "关闭应用", "重新打开 PDF", "验证批注恢复", "测试与 WPF 版本的兼容性"],
+    "success_metrics": ["保存成功", "加载成功", "批注完整", "格式兼容"]
+  },
+
+  "rationale": {
+    "chosen_approach": "保持 ISF + JSON 格式与 WPF 版本兼容，确保用户可以在两个版本之间切换使用。",
+    "tradeoffs": "ISF 格式是二进制，不易调试，但保证了笔迹的完整性和兼容性"
+  },
+
+  "risks": ["WinUI 3 InkStrokeContainer 的 ISF 格式可能与 WPF 有细微差异", "大量批注可能导致文件较大"],
+
+  "meta": {
+    "estimated_time": "90min",
+    "risk": "low",
+    "autonomous": true
+  }
+}

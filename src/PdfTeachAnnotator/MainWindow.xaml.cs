@@ -11,6 +11,8 @@ public partial class MainWindow : Window
 {
     private readonly MainViewModel _viewModel;
 
+    public MainViewModel ViewModel => _viewModel;
+
     public MainWindow()
     {
         InitializeComponent();
@@ -28,6 +30,7 @@ public partial class MainWindow : Window
         };
 
         InputBindings.Add(new KeyBinding(_viewModel.OpenFileCommand, Key.O, ModifierKeys.Control));
+        InputBindings.Add(new KeyBinding(_viewModel.SaveCommand, Key.S, ModifierKeys.Control));
     }
 
     private void UpdateEraserShapes()
@@ -92,8 +95,30 @@ public partial class MainWindow : Window
 
     private void Exit_Click(object sender, RoutedEventArgs e) => Close();
 
+    private void RecentFile_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button button && button.Tag is string filePath)
+        {
+            if (System.IO.File.Exists(filePath))
+                _viewModel.LoadPdf(filePath);
+            else
+                MessageBox.Show("文件不存在或已被移动", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private void SaveSettings_Click(object sender, RoutedEventArgs e)
+    {
+        _viewModel.Settings.Save();
+        MessageBox.Show("设置已保存", "成功", MessageBoxButton.OK, MessageBoxImage.Information);
+    }
+
     protected override void OnClosed(EventArgs e)
     {
+        // Auto-save annotations if enabled
+        if (_viewModel.Settings.AutoSaveAnnotations && _viewModel.CurrentPdfPath != null)
+        {
+            _viewModel.SaveCommand.Execute(null);
+        }
         _viewModel.Dispose();
         base.OnClosed(e);
     }

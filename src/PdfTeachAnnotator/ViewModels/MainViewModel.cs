@@ -13,9 +13,31 @@ public class MainViewModel : ViewModelBase, IDisposable
     private string? _currentPdfPath;
     private int _viewportWidth = 800;
     private double _zoomLevel = 1.0;
+    private string _currentView = "Home";
 
     public ObservableCollection<PageModel> Pages { get; } = new();
     public ToolbarViewModel Toolbar { get; } = new();
+    public AppSettings Settings { get; } = AppSettings.Load();
+    public ObservableCollection<RecentFile> RecentFiles { get; } = new();
+
+    public string CurrentView
+    {
+        get => _currentView;
+        set
+        {
+            if (SetField(ref _currentView, value))
+            {
+                OnPropertyChanged(nameof(IsHomeView));
+                OnPropertyChanged(nameof(IsPdfView));
+                OnPropertyChanged(nameof(IsSettingsView));
+            }
+        }
+    }
+
+    public bool IsHomeView => CurrentView == "Home";
+    public bool IsPdfView => CurrentView == "Pdf";
+    public bool IsSettingsView => CurrentView == "Settings";
+    public bool HasRecentFiles => RecentFiles.Count == 0;
 
     public string? CurrentPdfPath
     {
@@ -50,6 +72,8 @@ public class MainViewModel : ViewModelBase, IDisposable
     public ICommand ZoomOutCommand { get; }
     public ICommand ZoomResetCommand { get; }
     public ICommand SaveCommand { get; }
+    public ICommand ShowHomeCommand { get; }
+    public ICommand ShowSettingsCommand { get; }
 
     public MainViewModel()
     {
@@ -58,7 +82,21 @@ public class MainViewModel : ViewModelBase, IDisposable
         ZoomOutCommand = new RelayCommand(() => ZoomLevel -= 0.1);
         ZoomResetCommand = new RelayCommand(() => ZoomLevel = 1.0);
         SaveCommand = new RelayCommand(SaveAnnotations);
+        ShowHomeCommand = new RelayCommand(() => CurrentView = "Home");
+        ShowSettingsCommand = new RelayCommand(() => CurrentView = "Settings");
         Toolbar.ClearAllRequested += ClearAllStrokes;
+
+        LoadRecentFiles();
+        if (Settings.ShowWelcomeScreen)
+            CurrentView = "Home";
+    }
+
+    private void LoadRecentFiles()
+    {
+        RecentFiles.Clear();
+        foreach (var file in Settings.RecentFiles)
+            RecentFiles.Add(file);
+        OnPropertyChanged(nameof(HasRecentFiles));
     }
 
     private void OpenFile()
@@ -79,6 +117,14 @@ public class MainViewModel : ViewModelBase, IDisposable
         CurrentPdfPath = path;
         ReloadPages();
         LoadAnnotations(path);
+
+        // Add to recent files
+        var hasAnnotations = _annotationService.LoadAnnotations(path) != null;
+        Settings.AddRecentFile(path, _pdfService.PageCount, hasAnnotations);
+        LoadRecentFiles();
+
+        // Switch to PDF view
+        CurrentView = "Pdf";
     }
 
     private void ReloadPages()

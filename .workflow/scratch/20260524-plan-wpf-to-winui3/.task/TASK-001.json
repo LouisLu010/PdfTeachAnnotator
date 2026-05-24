@@ -1,0 +1,90 @@
+{
+  "id": "TASK-001",
+  "title": "创建 WinUI 3 项目骨架并迁移核心代码",
+  "description": "创建新的 WinUI 3 项目，配置单文件发布，迁移 Models、ViewModels、Services 等核心业务逻辑代码。",
+
+  "issue_id": null,
+  "type": "feature",
+  "priority": "high",
+  "effort": "large",
+  "action": "使用 Visual Studio 或 dotnet CLI 创建 WinUI 3 Desktop 项目。配置 .csproj 支持单文件发布（PublishSingleFile, SelfContained, IncludeNativeLibrariesForSelfExtract）。从 WPF 项目复制 Models/、ViewModels/、Services/、Converters/ 目录，调整命名空间和 WinUI 3 特定 API（如 INotifyPropertyChanged 保持不变，但 Brush/Color 类型需要调整）。",
+  "status": "pending",
+
+  "scope": "src/PdfTeachAnnotatorWinUI",
+  "focus_paths": [
+    "src/PdfTeachAnnotatorWinUI/PdfTeachAnnotatorWinUI.csproj",
+    "src/PdfTeachAnnotatorWinUI/App.xaml",
+    "src/PdfTeachAnnotatorWinUI/MainWindow.xaml",
+    "src/PdfTeachAnnotatorWinUI/Models/",
+    "src/PdfTeachAnnotatorWinUI/ViewModels/",
+    "src/PdfTeachAnnotatorWinUI/Services/"
+  ],
+
+  "read_first": [
+    "src/PdfTeachAnnotator/PdfTeachAnnotator.csproj",
+    "src/PdfTeachAnnotator/Models/PageModel.cs",
+    "src/PdfTeachAnnotator/ViewModels/MainViewModel.cs",
+    "src/PdfTeachAnnotator/Services/PdfRenderService.cs",
+    ".workflow/scratch/20260524-plan-wpf-to-winui3/context.md"
+  ],
+
+  "depends_on": [],
+  "wave": 1,
+  "executor": "agent",
+
+  "convergence": {
+    "criteria": [
+      "PdfTeachAnnotatorWinUI.csproj 包含 '<TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>'",
+      "PdfTeachAnnotatorWinUI.csproj 包含 PackageReference 'Microsoft.WindowsAppSDK'",
+      "PdfTeachAnnotatorWinUI.csproj 包含 '<PublishSingleFile>true</PublishSingleFile>'",
+      "存在 Models/PageModel.cs 且命名空间为 PdfTeachAnnotatorWinUI.Models",
+      "存在 ViewModels/ViewModelBase.cs",
+      "存在 Services/ 目录",
+      "dotnet build src/PdfTeachAnnotatorWinUI 成功编译"
+    ],
+    "verification": "dotnet build src/PdfTeachAnnotatorWinUI",
+    "definition_of_done": "WinUI 3 项目创建成功，核心业务逻辑代码已迁移，项目可编译通过"
+  },
+
+  "files": [
+    {"path": "src/PdfTeachAnnotatorWinUI/PdfTeachAnnotatorWinUI.csproj", "action": "create", "target": "project file", "change": "WinUI 3 项目配置，包含 WindowsAppSDK 引用和单文件发布设置"},
+    {"path": "src/PdfTeachAnnotatorWinUI/App.xaml", "action": "create", "target": "App", "change": "WinUI 3 Application 入口"},
+    {"path": "src/PdfTeachAnnotatorWinUI/App.xaml.cs", "action": "create", "target": "App code-behind", "change": "应用启动逻辑"},
+    {"path": "src/PdfTeachAnnotatorWinUI/MainWindow.xaml", "action": "create", "target": "MainWindow", "change": "基础窗口结构（后续任务完善）"},
+    {"path": "src/PdfTeachAnnotatorWinUI/Models/PageModel.cs", "action": "create", "target": "PageModel", "change": "从 WPF 迁移，调整 WinUI 3 类型"},
+    {"path": "src/PdfTeachAnnotatorWinUI/Models/AnnotationFile.cs", "action": "create", "target": "AnnotationFile", "change": "从 WPF 迁移"},
+    {"path": "src/PdfTeachAnnotatorWinUI/ViewModels/ViewModelBase.cs", "action": "create", "target": "ViewModelBase", "change": "从 WPF 迁移"},
+    {"path": "src/PdfTeachAnnotatorWinUI/ViewModels/MainViewModel.cs", "action": "create", "target": "MainViewModel", "change": "从 WPF 迁移，调整 WinUI 3 类型"},
+    {"path": "src/PdfTeachAnnotatorWinUI/ViewModels/ToolbarViewModel.cs", "action": "create", "target": "ToolbarViewModel", "change": "从 WPF 迁移"}
+  ],
+
+  "implementation": [
+    "创建 WinUI 3 项目: dotnet new winui -n PdfTeachAnnotatorWinUI -o src/PdfTeachAnnotatorWinUI",
+    "编辑 .csproj: 添加 <PublishSingleFile>true</PublishSingleFile>, <SelfContained>true</SelfContained>, <RuntimeIdentifier>win-x64</RuntimeIdentifier>, <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>",
+    "设置 TargetFramework 为 net8.0-windows10.0.19041.0（Windows 10 1809+）",
+    "复制 Models/ 目录，调整命名空间为 PdfTeachAnnotatorWinUI.Models",
+    "复制 ViewModels/ 目录，调整命名空间，将 System.Windows.Media.Color 改为 Windows.UI.Color 或 Microsoft.UI.Xaml.Media.Color",
+    "复制 Services/ 目录（PdfRenderService 和 AnnotationFileService），暂时保留 Docnet.Core 引用",
+    "复制 Converters/ 目录，调整为 WinUI 3 的 IValueConverter",
+    "创建基础 MainWindow.xaml，包含 Grid 根元素和基本结构",
+    "确保项目编译通过: dotnet build src/PdfTeachAnnotatorWinUI"
+  ],
+
+  "test": {
+    "commands": ["dotnet build src/PdfTeachAnnotatorWinUI"],
+    "success_metrics": ["编译成功", "无错误和警告", "项目结构完整"]
+  },
+
+  "rationale": {
+    "chosen_approach": "先建立项目骨架和迁移业务逻辑，再逐步实现 UI。这样可以确保核心代码可复用，减少重复工作。",
+    "tradeoffs": "初期项目无法运行（UI 未完成），但业务逻辑迁移更安全"
+  },
+
+  "risks": ["WinUI 3 类型差异可能导致编译错误", "Docnet.Core 可能与 WinUI 3 不兼容"],
+
+  "meta": {
+    "estimated_time": "90min",
+    "risk": "medium",
+    "autonomous": true
+  }
+}

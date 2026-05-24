@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "0dnASTYtY3I=",
+  "dgSpecHash": "xOuuyS+1Xfg=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Louis\\Documents\\pdf\\src\\PdfTeachAnnotator\\PdfTeachAnnotator.csproj",
+  "projectFilePath": "C:\\Users\\Louis\\Documents\\PdfTeachAnnotator\\src\\PdfTeachAnnotator\\PdfTeachAnnotator.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Louis\\.nuget\\packages\\docnet.core\\2.6.0\\docnet.core.2.6.0.nupkg.sha512",
     "C:\\Users\\Louis\\.nuget\\packages\\microsoft.net.illink.tasks\\8.0.25\\microsoft.net.illink.tasks.8.0.25.nupkg.sha512",

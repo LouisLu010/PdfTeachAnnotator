@@ -70,6 +70,33 @@ public class ToolbarViewModel : ViewModelBase
     public RelayCommand SelectPenCommand { get; }
     public RelayCommand SelectEraserCommand { get; }
     public RelayCommand ClearAllCommand { get; }
+    public RelayCommand ToggleClearSliderCommand { get; }
+
+    private bool _showClearSlider;
+    private double _clearSliderValue;
+
+    public bool ShowClearSlider
+    {
+        get => _showClearSlider;
+        set => SetField(ref _showClearSlider, value);
+    }
+
+    public double ClearSliderValue
+    {
+        get => _clearSliderValue;
+        set
+        {
+            if (SetField(ref _clearSliderValue, value))
+            {
+                if (value >= 100)
+                {
+                    ExecuteClearAll();
+                    ShowClearSlider = false;
+                    ClearSliderValue = 0;
+                }
+            }
+        }
+    }
 
     public event Action? ClearAllRequested;
     public Func<bool>? ConfirmClearAll { get; set; }
@@ -78,14 +105,14 @@ public class ToolbarViewModel : ViewModelBase
     {
         SelectPenCommand = new RelayCommand(() => ActiveTool = ToolMode.Pen);
         SelectEraserCommand = new RelayCommand(() => ActiveTool = ToolMode.Eraser);
-        ClearAllCommand = new RelayCommand(ExecuteClearAll);
+        ClearAllCommand = new RelayCommand(() => ShowClearSlider = !ShowClearSlider);
+        ToggleClearSliderCommand = new RelayCommand(() => ShowClearSlider = !ShowClearSlider);
         UpdateDrawingAttributes();
     }
 
     private void ExecuteClearAll()
     {
-        if (ConfirmClearAll == null || ConfirmClearAll())
-            ClearAllRequested?.Invoke();
+        ClearAllRequested?.Invoke();
     }
 
     private void UpdateDrawingAttributes()

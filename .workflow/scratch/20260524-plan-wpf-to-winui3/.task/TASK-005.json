@@ -1,0 +1,88 @@
+{
+  "id": "TASK-005",
+  "title": "应用 Fluent Design 美化界面",
+  "description": "使用 Fluent Design System 元素美化整个应用界面，包括 Acrylic 材质、圆角、阴影、流畅动画和现代化图标。",
+
+  "issue_id": null,
+  "type": "feature",
+  "priority": "medium",
+  "effort": "large",
+  "action": "在 App.xaml 中定义全局 Fluent Design 资源字典，包括 Acrylic 背景画刷、圆角半径、阴影效果。为 MainWindow 应用自定义标题栏（ExtendContentIntoTitleBar），使用 Acrylic 材质。重新设计 CommandBar 工具栏，使用圆角 AppBarButton，添加悬停和按下动画。为 PDF 页面卡片添加 DropShadow 效果和圆角。颜色选择器使用圆形色块，选中状态带边框高亮。所有按钮添加 PointerEntered/Exited 动画（缩放、透明度）。使用 Segoe Fluent Icons 字体替换图标路径。整体配色使用 Fluent Design 调色板（浅色/深色主题支持）。",
+  "status": "pending",
+
+  "scope": "src/PdfTeachAnnotatorWinUI",
+  "focus_paths": [
+    "src/PdfTeachAnnotatorWinUI/App.xaml",
+    "src/PdfTeachAnnotatorWinUI/MainWindow.xaml",
+    "src/PdfTeachAnnotatorWinUI/MainWindow.xaml.cs",
+    "src/PdfTeachAnnotatorWinUI/Styles/FluentStyles.xaml"
+  ],
+
+  "read_first": [
+    "src/PdfTeachAnnotator/MainWindow.xaml",
+    ".workflow/scratch/20260524-plan-wpf-to-winui3/context.md"
+  ],
+
+  "depends_on": ["TASK-004"],
+  "wave": 5,
+  "executor": "agent",
+
+  "convergence": {
+    "criteria": [
+      "App.xaml 包含 '<ResourceDictionary Source=\"Styles/FluentStyles.xaml\"'",
+      "MainWindow.xaml.cs 包含 'ExtendsContentIntoTitleBar = true'",
+      "MainWindow.xaml 包含 'AcrylicBrush' 背景",
+      "MainWindow.xaml CommandBar 按钮包含 'CornerRadius' 属性",
+      "MainWindow.xaml PDF 页面 Border 包含 '<Border.Shadow>' 元素",
+      "Styles/FluentStyles.xaml 包含动画定义",
+      "dotnet build src/PdfTeachAnnotatorWinUI 成功",
+      "应用界面美观现代"
+    ],
+    "verification": "dotnet build && 手动检查 UI 美化效果",
+    "definition_of_done": "应用使用 Fluent Design 风格，包含 Acrylic 材质、圆角、阴影、流畅动画，支持浅色/深色主题"
+  },
+
+  "files": [
+    {"path": "src/PdfTeachAnnotatorWinUI/App.xaml", "action": "modify", "target": "Global resources", "change": "添加 Fluent Design 资源字典引用"},
+    {"path": "src/PdfTeachAnnotatorWinUI/Styles/FluentStyles.xaml", "action": "create", "target": "Style definitions", "change": "定义 Acrylic 画刷、圆角、阴影、动画样式"},
+    {"path": "src/PdfTeachAnnotatorWinUI/MainWindow.xaml", "action": "modify", "target": "UI styling", "change": "应用 Fluent Design 元素到所有控件"},
+    {"path": "src/PdfTeachAnnotatorWinUI/MainWindow.xaml.cs", "action": "modify", "target": "Title bar", "change": "配置自定义标题栏"}
+  ],
+
+  "implementation": [
+    "创建 Styles/FluentStyles.xaml 资源字典",
+    "定义 AcrylicBackgroundBrush: <AcrylicBrush TintColor='#F3F3F3' TintOpacity='0.8' FallbackColor='#F3F3F3'/>",
+    "定义 CardShadow: <ThemeShadow /> 用于 PDF 页面卡片",
+    "定义 CornerRadiusLarge (8), CornerRadiusMedium (4), CornerRadiusSmall (2)",
+    "在 MainWindow.xaml.cs 构造函数中设置: ExtendsContentIntoTitleBar = true, SetTitleBar(AppTitleBar) 指定自定义标题栏区域",
+    "在 MainWindow.xaml 顶部添加自定义标题栏: Grid 包含应用图标、标题文本、拖动区域",
+    "为 MainWindow 根元素设置 Background='{StaticResource AcrylicBackgroundBrush}'",
+    "重新设计 CommandBar: 使用 <CommandBar Background='{ThemeResource LayerFillColorDefaultBrush}' CornerRadius='8' Margin='12,8'>",
+    "为 AppBarButton 添加样式: CornerRadius='4', 悬停时缩放动画 <VisualStateManager.VisualStateGroups>",
+    "为 PDF 页面 Border 添加: CornerRadius='8', <Border.Shadow><ThemeShadow /></Border.Shadow>, Translation='0,0,16' (Z 轴偏移启用阴影)",
+    "颜色选择器: 使用圆形 Border (CornerRadius='12'), 选中状态 BorderBrush='{ThemeResource AccentFillColorDefaultBrush}' BorderThickness='3'",
+    "替换图标: 使用 <FontIcon Glyph='&#xE8E5;' FontFamily='Segoe Fluent Icons'/> 替代 Path 几何图形",
+    "添加按钮动画: PointerEntered 时 ScaleTransform 1.05, PointerExited 恢复 1.0, 使用 Storyboard 平滑过渡",
+    "支持主题切换: 在 App.xaml.cs 中监听 RequestedTheme 变化，动态调整 Acrylic TintColor",
+    "测试: 检查 Acrylic 效果、圆角、阴影、动画流畅度，切换浅色/深色主题"
+  ],
+
+  "test": {
+    "commands": ["dotnet build src/PdfTeachAnnotatorWinUI"],
+    "integration": ["检查 Acrylic 背景", "验证圆角和阴影", "测试按钮动画", "切换主题"],
+    "success_metrics": ["视觉效果现代", "动画流畅", "主题切换正常", "性能无明显下降"]
+  },
+
+  "rationale": {
+    "chosen_approach": "Fluent Design 是 Windows 11 的设计语言，使用官方组件和样式可以确保与系统一致性，提升用户体验。",
+    "tradeoffs": "Acrylic 材质和阴影会增加 GPU 负载，但现代硬件足以支持"
+  },
+
+  "risks": ["过度使用 Acrylic 可能影响性能", "动画可能在低端设备上卡顿"],
+
+  "meta": {
+    "estimated_time": "120min",
+    "risk": "low",
+    "autonomous": true
+  }
+}
