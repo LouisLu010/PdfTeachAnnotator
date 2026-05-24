@@ -329,7 +329,7 @@ PdfTeachAnnotator/
 
 **Hongjun Lu**
 
-- GitHub: [@yourusername](https://github.com/yourusername)
+- GitHub: [@LouisLu010](https://github.com/LouisLu010)
 
 ---
 
@@ -338,6 +338,7 @@ PdfTeachAnnotator/
 - [WPF-UI](https://github.com/lepoco/wpfui) - 现代化的 WPF UI 库
 - [PDFium](https://pdfium.googlesource.com/pdfium/) - 强大的 PDF 渲染引擎
 - [.NET Foundation](https://dotnetfoundation.org/) - .NET 平台支持
+- [LINUX DO](https://linux.do/) - 新的理想型社区
 
 ---
 
