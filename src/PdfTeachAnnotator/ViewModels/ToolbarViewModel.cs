@@ -67,6 +67,11 @@ public class ToolbarViewModel : ViewModelBase
         Colors.Orange, Colors.Purple, Colors.Yellow, Colors.White
     ];
 
+    public double[] PenSizes { get; } = [1, 3, 5, 8, 12];
+    public double[] EraserSizes { get; } = [10, 20, 30, 40, 50];
+
+    public RelayCommand SetPenSizeCommand { get; }
+    public RelayCommand SetEraserSizeCommand { get; }
     public RelayCommand SelectPenCommand { get; }
     public RelayCommand SelectEraserCommand { get; }
     public RelayCommand ClearAllCommand { get; }
@@ -108,6 +113,16 @@ public class ToolbarViewModel : ViewModelBase
 
     public ToolbarViewModel()
     {
+        SetPenSizeCommand = new RelayCommand(param =>
+        {
+            if (param is double size)
+                PenSize = size;
+        });
+        SetEraserSizeCommand = new RelayCommand(param =>
+        {
+            if (param is double size)
+                EraserSize = size;
+        });
         SelectPenCommand = new RelayCommand(() => ActiveTool = ToolMode.Pen);
         SelectEraserCommand = new RelayCommand(() => ActiveTool = ToolMode.Eraser);
         ClearAllCommand = new RelayCommand(() => ShowClearSlider = !ShowClearSlider);

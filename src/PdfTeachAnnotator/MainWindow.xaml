@@ -17,6 +17,7 @@
         <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <local:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
         <local:SliderProgressConverter x:Key="SliderProgressConverter"/>
+        <local:EraserSizeConverter x:Key="EraserSizeConverter"/>
 
         <!-- Material-style vector icon geometries -->
         <Geometry x:Key="IconOpen">M19,20H4C2.89,20 2,19.1 2,18V6C2,4.89 2.89,4 4,4H10L12,6H19A2,2 0 0,1 21,8H4V18L6.14,10H22.14L20,18C19.79,18.84 19,20 19,20Z</Geometry>
@@ -196,14 +197,98 @@
                 </ItemsControl>
                 <Separator Margin="8,0"/>
                 <!-- Pen Size -->
-                <TextBlock Text="笔粗" VerticalAlignment="Center" Margin="8,0,6,0" Foreground="#34495E" FontWeight="SemiBold" FontSize="13"/>
-                <Slider Value="{Binding Toolbar.PenSize}" Minimum="1" Maximum="20" Width="80"
-                        VerticalAlignment="Center" ToolTip="画笔粗细" Foreground="#3498DB"/>
+                <TextBlock Text="笔粗" VerticalAlignment="Center" Margin="8,0,6,0" Foreground="{DynamicResource TextFillColorPrimaryBrush}" FontWeight="SemiBold" FontSize="13"/>
+                <ItemsControl ItemsSource="{Binding Toolbar.PenSizes}" VerticalAlignment="Center">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Command="{Binding DataContext.Toolbar.SetPenSizeCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                    CommandParameter="{Binding}"
+                                    Width="32" Height="32" Margin="2,0" Cursor="Hand"
+                                    Background="Transparent" BorderThickness="0">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Grid Background="{TemplateBinding Background}">
+                                                        <Ellipse Width="{Binding}" Height="{Binding}"
+                                                                 Fill="#3498DB" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        <Ellipse Width="{Binding}" Height="{Binding}"
+                                                                 Stroke="#2980B9" StrokeThickness="2"
+                                                                 HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                                 Visibility="Collapsed" x:Name="SelectionRing"/>
+                                                    </Grid>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter TargetName="SelectionRing" Property="Visibility" Value="Visible"/>
+                                                            <Setter TargetName="SelectionRing" Property="Stroke" Value="#3498DB"/>
+                                                        </Trigger>
+                                                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.Toolbar.PenSize}" Value="{Binding}">
+                                                            <Setter TargetName="SelectionRing" Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
                 <Separator Margin="8,0"/>
                 <!-- Eraser Size -->
-                <TextBlock Text="擦头" VerticalAlignment="Center" Margin="8,0,6,0" Foreground="#34495E" FontWeight="SemiBold" FontSize="13"/>
-                <Slider Value="{Binding Toolbar.EraserSize}" Minimum="5" Maximum="50" Width="90"
-                        VerticalAlignment="Center" ToolTip="橡皮大小" Foreground="#95A5A6"/>
+                <TextBlock Text="擦头" VerticalAlignment="Center" Margin="8,0,6,0" Foreground="{DynamicResource TextFillColorPrimaryBrush}" FontWeight="SemiBold" FontSize="13"/>
+                <ItemsControl ItemsSource="{Binding Toolbar.EraserSizes}" VerticalAlignment="Center">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Command="{Binding DataContext.Toolbar.SetEraserSizeCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                    CommandParameter="{Binding}"
+                                    Width="40" Height="40" Margin="2,0" Cursor="Hand"
+                                    Background="Transparent" BorderThickness="0">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Grid Background="{TemplateBinding Background}">
+                                                        <Ellipse Width="{Binding Converter={StaticResource EraserSizeConverter}}"
+                                                                 Height="{Binding Converter={StaticResource EraserSizeConverter}}"
+                                                                 Fill="#95A5A6" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        <Ellipse Width="{Binding Converter={StaticResource EraserSizeConverter}}"
+                                                                 Height="{Binding Converter={StaticResource EraserSizeConverter}}"
+                                                                 Stroke="#7F8C8D" StrokeThickness="2"
+                                                                 HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                                 Visibility="Collapsed" x:Name="SelectionRing"/>
+                                                    </Grid>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter TargetName="SelectionRing" Property="Visibility" Value="Visible"/>
+                                                            <Setter TargetName="SelectionRing" Property="Stroke" Value="#95A5A6"/>
+                                                        </Trigger>
+                                                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=DataContext.Toolbar.EraserSize}" Value="{Binding}">
+                                                            <Setter TargetName="SelectionRing" Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
                 <Separator Margin="8,0"/>
                 <!-- Zoom -->
                 <Button Style="{StaticResource IconButtonStyle}" Command="{Binding ZoomOutCommand}" ToolTip="缩小">

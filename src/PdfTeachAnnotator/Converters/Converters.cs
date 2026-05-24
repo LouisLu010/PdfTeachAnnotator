@@ -99,3 +99,19 @@ public class SliderProgressConverter : IMultiValueConverter
     public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         => throw new NotSupportedException();
 }
+
+public class EraserSizeConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (value is double size)
+        {
+            // 将橡皮擦大小缩放到适合显示的范围 (10-50 -> 8-32)
+            return size * 0.64;
+        }
+        return 16.0;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        => throw new NotSupportedException();
+}
