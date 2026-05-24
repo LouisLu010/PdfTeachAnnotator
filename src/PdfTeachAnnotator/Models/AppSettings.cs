@@ -18,7 +18,13 @@ public class AppSettings
     public int MaxRecentFiles { get; set; } = 10;
     public bool AutoSaveAnnotations { get; set; } = true;
     public bool ShowWelcomeScreen { get; set; } = true;
-    public string Theme { get; set; } = "Light";
+    public string Theme { get; set; } = "Dark";
+    public double DefaultPenSize { get; set; } = 3.0;
+    public double DefaultEraserSize { get; set; } = 20.0;
+    public string DefaultPenColor { get; set; } = "#E74C3C"; // Red
+    public bool EnableSmoothDrawing { get; set; } = true;
+    public bool ShowToolTips { get; set; } = true;
+    public double DefaultZoomLevel { get; set; } = 1.0;
 
     private static readonly string SettingsPath =
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),

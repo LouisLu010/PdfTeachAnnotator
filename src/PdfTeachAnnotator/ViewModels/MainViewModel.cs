@@ -91,7 +91,7 @@ public class MainViewModel : ViewModelBase, IDisposable
             CurrentView = "Home";
     }
 
-    private void LoadRecentFiles()
+    public void LoadRecentFiles()
     {
         RecentFiles.Clear();
         foreach (var file in Settings.RecentFiles)

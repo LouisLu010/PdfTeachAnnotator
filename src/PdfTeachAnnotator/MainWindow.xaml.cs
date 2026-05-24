@@ -113,6 +113,20 @@ public partial class MainWindow : FluentWindow
         System.Windows.MessageBox.Show("设置已保存", "成功", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
     }
 
+    private void ClearRecent_Click(object sender, RoutedEventArgs e)
+    {
+        var result = System.Windows.MessageBox.Show("确定要清空所有最近访问记录吗？", "确认清空",
+            System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Question);
+
+        if (result == System.Windows.MessageBoxResult.Yes)
+        {
+            _viewModel.Settings.RecentFiles.Clear();
+            _viewModel.Settings.Save();
+            _viewModel.LoadRecentFiles();
+            System.Windows.MessageBox.Show("最近访问记录已清空", "成功", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Information);
+        }
+    }
+
     protected override void OnClosed(EventArgs e)
     {
         // Auto-save annotations if enabled

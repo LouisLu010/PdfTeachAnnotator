@@ -463,72 +463,164 @@
             <!-- Settings Page -->
             <ContentControl Visibility="{Binding IsSettingsView, Converter={StaticResource BoolToVisibilityConverter}}">
                 <ContentControl.Content>
-                    <Grid Background="#F8F9FA">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel Margin="40,30" MaxWidth="800" HorizontalAlignment="Left">
 
-                        <Border Grid.Row="0" Background="White" Padding="40,30" BorderBrush="#E0E0E0" BorderThickness="0,0,0,1">
-                            <StackPanel>
-                                <TextBlock Text="设置" FontSize="32" FontWeight="Bold" Foreground="#2C3E50"/>
-                                <TextBlock Text="自定义应用程序行为" FontSize="16" Foreground="#7F8C8D" Margin="0,8,0,0"/>
-                            </StackPanel>
-                        </Border>
+                            <!-- Header -->
+                            <TextBlock Text="设置" FontSize="32" FontWeight="Bold" Margin="0,0,0,8"/>
+                            <TextBlock Text="自定义应用程序行为和外观" FontSize="14" Opacity="0.7" Margin="0,0,0,32"/>
 
-                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                            <StackPanel Margin="40,30" MaxWidth="700" HorizontalAlignment="Left">
-                                <TextBlock Text="常规设置" FontSize="20" FontWeight="SemiBold" Foreground="#34495E" Margin="0,0,0,16"/>
+                            <!-- General Settings -->
+                            <ui:CardExpander Icon="{ui:SymbolIcon Settings24}" Header="常规设置" IsExpanded="True" Margin="0,0,0,16">
+                                <StackPanel Margin="0,16,0,0">
+                                    <ui:CardControl Icon="{ui:SymbolIcon Save24}">
+                                        <ui:CardControl.Header>
+                                            <StackPanel>
+                                                <TextBlock Text="自动保存批注" FontWeight="SemiBold"/>
+                                                <TextBlock Text="关闭文件时自动保存批注，无需手动保存" FontSize="12" Opacity="0.7" Margin="0,4,0,0"/>
+                                            </StackPanel>
+                                        </ui:CardControl.Header>
+                                        <ui:ToggleSwitch IsChecked="{Binding Settings.AutoSaveAnnotations}"/>
+                                    </ui:CardControl>
 
-                                <Border Background="White" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="6" Padding="24" Margin="0,0,0,20">
-                                    <Border.Effect>
-                                        <DropShadowEffect Color="#000000" BlurRadius="6" ShadowDepth="1" Opacity="0.08"/>
-                                    </Border.Effect>
-                                    <StackPanel>
-                                        <CheckBox IsChecked="{Binding Settings.AutoSaveAnnotations}" Foreground="#2C3E50" FontSize="14">
-                                            <TextBlock Text="自动保存批注" FontWeight="SemiBold"/>
-                                        </CheckBox>
-                                        <TextBlock Text="关闭文件时自动保存批注，无需手动保存" FontSize="12" Foreground="#7F8C8D" Margin="28,4,0,0"/>
+                                    <ui:CardControl Icon="{ui:SymbolIcon Home24}" Margin="0,8,0,0">
+                                        <ui:CardControl.Header>
+                                            <StackPanel>
+                                                <TextBlock Text="启动时显示主页" FontWeight="SemiBold"/>
+                                                <TextBlock Text="应用启动时显示主页和最近文件" FontSize="12" Opacity="0.7" Margin="0,4,0,0"/>
+                                            </StackPanel>
+                                        </ui:CardControl.Header>
+                                        <ui:ToggleSwitch IsChecked="{Binding Settings.ShowWelcomeScreen}"/>
+                                    </ui:CardControl>
 
-                                        <CheckBox IsChecked="{Binding Settings.ShowWelcomeScreen}" Foreground="#2C3E50" FontSize="14" Margin="0,20,0,0">
-                                            <TextBlock Text="启动时显示主页" FontWeight="SemiBold"/>
-                                        </CheckBox>
-                                        <TextBlock Text="应用启动时显示主页和最近文件" FontSize="12" Foreground="#7F8C8D" Margin="28,4,0,0"/>
-                                    </StackPanel>
-                                </Border>
+                                    <ui:CardControl Icon="{ui:SymbolIcon QuestionCircle24}" Margin="0,8,0,0">
+                                        <ui:CardControl.Header>
+                                            <StackPanel>
+                                                <TextBlock Text="显示工具提示" FontWeight="SemiBold"/>
+                                                <TextBlock Text="鼠标悬停时显示工具提示" FontSize="12" Opacity="0.7" Margin="0,4,0,0"/>
+                                            </StackPanel>
+                                        </ui:CardControl.Header>
+                                        <ui:ToggleSwitch IsChecked="{Binding Settings.ShowToolTips}"/>
+                                    </ui:CardControl>
+                                </StackPanel>
+                            </ui:CardExpander>
 
-                                <Button Click="SaveSettings_Click" Padding="24,12" HorizontalAlignment="Left"
-                                        Background="#27AE60" Foreground="White" BorderThickness="0" Cursor="Hand" Margin="0,20,0,40">
-                                    <Button.Style>
-                                        <Style TargetType="Button">
-                                            <Setter Property="Template">
-                                                <Setter.Value>
-                                                    <ControlTemplate TargetType="Button">
-                                                        <Border Background="{TemplateBinding Background}"
-                                                                CornerRadius="6" Padding="{TemplateBinding Padding}">
-                                                            <Border.Effect>
-                                                                <DropShadowEffect Color="#000000" BlurRadius="8" ShadowDepth="2" Opacity="0.15"/>
-                                                            </Border.Effect>
-                                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                        </Border>
-                                                        <ControlTemplate.Triggers>
-                                                            <Trigger Property="IsMouseOver" Value="True">
-                                                                <Setter Property="Background" Value="#229954"/>
-                                                            </Trigger>
-                                                        </ControlTemplate.Triggers>
-                                                    </ControlTemplate>
-                                                </Setter.Value>
-                                            </Setter>
-                                        </Style>
-                                    </Button.Style>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Path Data="{StaticResource IconSave}" Fill="White" Width="18" Height="18" Stretch="Uniform" Margin="0,0,10,0"/>
-                                        <TextBlock Text="保存设置" FontSize="15" FontWeight="SemiBold"/>
-                                    </StackPanel>
-                                </Button>
-                            </StackPanel>
-                        </ScrollViewer>
-                    </Grid>
+                            <!-- Drawing Settings -->
+                            <ui:CardExpander Icon="{ui:SymbolIcon Draw24}" Header="绘图设置" IsExpanded="True" Margin="0,0,0,16">
+                                <StackPanel Margin="0,16,0,0">
+                                    <ui:CardControl Icon="{ui:SymbolIcon PenSettings24}">
+                                        <ui:CardControl.Header>
+                                            <StackPanel>
+                                                <TextBlock Text="默认画笔粗细" FontWeight="SemiBold"/>
+                                                <TextBlock FontSize="12" Opacity="0.7" Margin="0,4,0,0">
+                                                    <Run Text="当前值:"/>
+                                                    <Run Text="{Binding Settings.DefaultPenSize, Mode=OneWay}" FontWeight="Bold"/>
+                                                </TextBlock>
+                                            </StackPanel>
+                                        </ui:CardControl.Header>
+                                        <Slider Value="{Binding Settings.DefaultPenSize}" Minimum="1" Maximum="20" Width="200"
+                                                TickFrequency="1" IsSnapToTickEnabled="True"/>
+                                    </ui:CardControl>
+
+                                    <ui:CardControl Icon="{ui:SymbolIcon Eraser24}" Margin="0,8,0,0">
+                                        <ui:CardControl.Header>
+                                            <StackPanel>
+                                                <TextBlock Text="默认橡皮大小" FontWeight="SemiBold"/>
+                                                <TextBlock FontSize="12" Opacity="0.7" Margin="0,4,0,0">
+                                                    <Run Text="当前值:"/>
+                                                    <Run Text="{Binding Settings.DefaultEraserSize, Mode=OneWay}" FontWeight="Bold"/>
+                                                </TextBlock>
+                                            </StackPanel>
+                                        </ui:CardControl.Header>
+                                        <Slider Value="{Binding Settings.DefaultEraserSize}" Minimum="5" Maximum="50" Width="200"
+                                                TickFrequency="5" IsSnapToTickEnabled="True"/>
+                                    </ui:CardControl>
+
+                                    <ui:CardControl Icon="{ui:SymbolIcon Sparkle24}" Margin="0,8,0,0">
+                                        <ui:CardControl.Header>
+                                            <StackPanel>
+                                                <TextBlock Text="平滑绘图" FontWeight="SemiBold"/>
+                                                <TextBlock Text="启用笔画平滑处理，使线条更流畅" FontSize="12" Opacity="0.7" Margin="0,4,0,0"/>
+                                            </StackPanel>
+                                        </ui:CardControl.Header>
+                                        <ui:ToggleSwitch IsChecked="{Binding Settings.EnableSmoothDrawing}"/>
+                                    </ui:CardControl>
+                                </StackPanel>
+                            </ui:CardExpander>
+
+                            <!-- View Settings -->
+                            <ui:CardExpander Icon="{ui:SymbolIcon Eye24}" Header="视图设置" IsExpanded="True" Margin="0,0,0,16">
+                                <StackPanel Margin="0,16,0,0">
+                                    <ui:CardControl Icon="{ui:SymbolIcon ZoomIn24}">
+                                        <ui:CardControl.Header>
+                                            <StackPanel>
+                                                <TextBlock Text="默认缩放级别" FontWeight="SemiBold"/>
+                                                <TextBlock FontSize="12" Opacity="0.7" Margin="0,4,0,0">
+                                                    <Run Text="当前值:"/>
+                                                    <Run Text="{Binding Settings.DefaultZoomLevel, StringFormat='{}{0:P0}', Mode=OneWay}" FontWeight="Bold"/>
+                                                </TextBlock>
+                                            </StackPanel>
+                                        </ui:CardControl.Header>
+                                        <Slider Value="{Binding Settings.DefaultZoomLevel}" Minimum="0.5" Maximum="2.0" Width="200"
+                                                TickFrequency="0.1" IsSnapToTickEnabled="True"/>
+                                    </ui:CardControl>
+                                </StackPanel>
+                            </ui:CardExpander>
+
+                            <!-- Recent Files Settings -->
+                            <ui:CardExpander Icon="{ui:SymbolIcon History24}" Header="最近文件" IsExpanded="True" Margin="0,0,0,16">
+                                <StackPanel Margin="0,16,0,0">
+                                    <ui:CardControl Icon="{ui:SymbolIcon NumberSymbol24}">
+                                        <ui:CardControl.Header>
+                                            <StackPanel>
+                                                <TextBlock Text="最大记录数量" FontWeight="SemiBold"/>
+                                                <TextBlock FontSize="12" Opacity="0.7" Margin="0,4,0,0">
+                                                    <Run Text="保存"/>
+                                                    <Run Text="{Binding Settings.MaxRecentFiles, Mode=OneWay}" FontWeight="Bold"/>
+                                                    <Run Text="个最近文件"/>
+                                                </TextBlock>
+                                            </StackPanel>
+                                        </ui:CardControl.Header>
+                                        <Slider Value="{Binding Settings.MaxRecentFiles}" Minimum="5" Maximum="20" Width="200"
+                                                TickFrequency="1" IsSnapToTickEnabled="True"/>
+                                    </ui:CardControl>
+
+                                    <ui:CardControl Icon="{ui:SymbolIcon Delete24}" Margin="0,8,0,0">
+                                        <ui:CardControl.Header>
+                                            <StackPanel>
+                                                <TextBlock Text="清空最近访问" FontWeight="SemiBold"/>
+                                                <TextBlock Text="删除所有最近访问记录" FontSize="12" Opacity="0.7" Margin="0,4,0,0"/>
+                                            </StackPanel>
+                                        </ui:CardControl.Header>
+                                        <ui:Button Content="清空" Appearance="Danger" Click="ClearRecent_Click"/>
+                                    </ui:CardControl>
+                                </StackPanel>
+                            </ui:CardExpander>
+
+                            <!-- Theme Settings -->
+                            <ui:CardExpander Icon="{ui:SymbolIcon PaintBrush24}" Header="外观" IsExpanded="True" Margin="0,0,0,32">
+                                <StackPanel Margin="0,16,0,0">
+                                    <ui:CardControl Icon="{ui:SymbolIcon WeatherMoon24}">
+                                        <ui:CardControl.Header>
+                                            <StackPanel>
+                                                <TextBlock Text="主题" FontWeight="SemiBold"/>
+                                                <TextBlock Text="选择应用程序主题" FontSize="12" Opacity="0.7" Margin="0,4,0,0"/>
+                                            </StackPanel>
+                                        </ui:CardControl.Header>
+                                        <ComboBox SelectedItem="{Binding Settings.Theme}" Width="150">
+                                            <ComboBoxItem Content="浅色" Tag="Light"/>
+                                            <ComboBoxItem Content="深色" Tag="Dark"/>
+                                            <ComboBoxItem Content="跟随系统" Tag="Auto"/>
+                                        </ComboBox>
+                                    </ui:CardControl>
+                                </StackPanel>
+                            </ui:CardExpander>
+
+                            <!-- Save Button -->
+                            <ui:Button Content="保存设置" Appearance="Primary" Icon="{ui:SymbolIcon Save24}"
+                                       Click="SaveSettings_Click" Padding="24,12" HorizontalAlignment="Left"/>
+                        </StackPanel>
+                    </ScrollViewer>
                 </ContentControl.Content>
             </ContentControl>
 
