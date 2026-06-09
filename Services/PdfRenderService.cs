@@ -26,23 +26,24 @@ public class PdfRenderService : IDisposable
         if (_reader == null)
             throw new InvalidOperationException("No document loaded.");
 
+        var (renderWidth, renderHeight) = GetPageSize(pageIndex, targetWidth);
+        return RenderPageAtSize(pageIndex, renderWidth, renderHeight);
+    }
+
+    public (int Width, int Height) GetPageSize(int pageIndex, int targetWidth)
+    {
+        if (_reader == null)
+            throw new InvalidOperationException("No document loaded.");
+
         using var pageReader = _reader.GetPageReader(pageIndex);
         var originalWidth = pageReader.GetPageWidth();
         var originalHeight = pageReader.GetPageHeight();
 
-        double scale = (double)targetWidth / originalWidth;
-        int renderWidth = targetWidth;
-        int renderHeight = (int)(originalHeight * scale);
+        var renderWidth = Math.Max(1, targetWidth);
+        var scale = (double)renderWidth / originalWidth;
+        var renderHeight = Math.Max(1, (int)(originalHeight * scale));
 
-        _reader.Dispose();
-        _reader = _library!.GetDocReader(_currentPath!, new PageDimensions(renderWidth, renderHeight));
-
-        using var scaledPageReader = _reader.GetPageReader(pageIndex);
-        var rawBytes = scaledPageReader.GetImage();
-        var width = scaledPageReader.GetPageWidth();
-        var height = scaledPageReader.GetPageHeight();
-
-        return ConvertToBitmapSource(rawBytes, width, height);
+        return (renderWidth, renderHeight);
     }
 
     public List<BitmapSource> RenderAllPages(int targetWidth)

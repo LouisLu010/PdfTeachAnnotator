@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Ink;
 using System.Windows.Input;
 using System.Windows.Media;
+using PdfTeachAnnotator.Models;
 using PdfTeachAnnotator.ViewModels;
 using Wpf.Ui.Controls;
 
@@ -11,6 +12,11 @@ namespace PdfTeachAnnotator;
 public partial class MainWindow : FluentWindow
 {
     private readonly MainViewModel _viewModel;
+    private readonly Dictionary<StrokeCollection, int> _trackedStrokePages = new();
+    private readonly Dictionary<StrokeCollection, List<Stroke>> _strokeSnapshots = new();
+    private ScrollViewer? _pdfScrollViewer;
+    private readonly Dictionary<InkCanvas, StrokeCollection> _eraserBatchedRemovals = new();
+    private readonly Dictionary<InkCanvas, List<Stroke>> _eraserBatchSnapshots = new();
 
     public MainViewModel ViewModel => _viewModel;
 
@@ -32,6 +38,23 @@ public partial class MainWindow : FluentWindow
 
         InputBindings.Add(new KeyBinding(_viewModel.OpenFileCommand, Key.O, ModifierKeys.Control));
         InputBindings.Add(new KeyBinding(_viewModel.SaveCommand, Key.S, ModifierKeys.Control));
+        InputBindings.Add(new KeyBinding(_viewModel.UndoCommand, Key.Z, ModifierKeys.Control));
+        InputBindings.Add(new KeyBinding(_viewModel.RedoCommand, Key.Y, ModifierKeys.Control));
+        InputBindings.Add(new KeyBinding(_viewModel.RedoCommand, Key.Z, ModifierKeys.Control | ModifierKeys.Shift));
+
+        _viewModel.Pages.CollectionChanged += Pages_CollectionChanged;
+    }
+
+    private void Pages_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+    {
+        if (e.OldItems != null)
+        {
+            foreach (PageModel page in e.OldItems)
+                UntrackStrokeCollection(page.Strokes);
+        }
+
+        if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Reset)
+            ResetTrackedStrokeCollections();
     }
 
     private void UpdateEraserShapes()
@@ -63,9 +86,133 @@ public partial class MainWindow : FluentWindow
         }
     }
 
+    private void InkCanvas_Loaded(object sender, RoutedEventArgs e)
+    {
+        if (sender is not InkCanvas inkCanvas || inkCanvas.DataContext is not PageModel page)
+            return;
+
+        TrackStrokeCollection(page);
+        inkCanvas.EraserShape = new RectangleStylusShape(_viewModel.Toolbar.EraserSize, _viewModel.Toolbar.EraserSize);
+        inkCanvas.PreviewMouseDown += InkCanvas_PreviewMouseDown;
+        inkCanvas.PreviewMouseUp += InkCanvas_PreviewMouseUp;
+    }
+
+    private void InkCanvas_StrokeCollected(object sender, InkCanvasStrokeCollectedEventArgs e) =>
+        CommandManager.InvalidateRequerySuggested();
+
+    private void InkCanvas_StrokeErased(object sender, RoutedEventArgs e) =>
+        CommandManager.InvalidateRequerySuggested();
+
+    private void InkCanvas_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is not InkCanvas inkCanvas)
+            return;
+
+        if (_viewModel.Toolbar.ActiveTool == ToolbarViewModel.ToolMode.Eraser)
+        {
+            _eraserBatchedRemovals[inkCanvas] = new StrokeCollection();
+            _eraserBatchSnapshots[inkCanvas] = inkCanvas.Strokes.ToList();
+        }
+    }
+
+    private void InkCanvas_PreviewMouseUp(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is not InkCanvas inkCanvas || inkCanvas.DataContext is not PageModel page)
+            return;
+
+        if (_viewModel.Toolbar.ActiveTool == ToolbarViewModel.ToolMode.Eraser &&
+            _eraserBatchedRemovals.TryGetValue(inkCanvas, out var removedStrokes) &&
+            removedStrokes.Count > 0)
+        {
+            var previousSnapshot = _eraserBatchSnapshots.TryGetValue(inkCanvas, out var snapshot)
+                ? snapshot
+                : inkCanvas.Strokes.ToList();
+
+            _viewModel.RegisterStrokeChange(page.PageIndex, new StrokeCollection(), removedStrokes, previousSnapshot);
+            _strokeSnapshots[page.Strokes] = inkCanvas.Strokes.ToList();
+        }
+
+        _eraserBatchedRemovals.Remove(inkCanvas);
+        _eraserBatchSnapshots.Remove(inkCanvas);
+    }
+
+    private void TrackStrokeCollection(PageModel page)
+    {
+        if (_trackedStrokePages.ContainsKey(page.Strokes))
+            return;
+
+        _trackedStrokePages[page.Strokes] = page.PageIndex;
+        _strokeSnapshots[page.Strokes] = page.Strokes.ToList();
+        page.Strokes.StrokesChanged += PageStrokes_StrokesChanged;
+    }
+
+    private void UntrackStrokeCollection(StrokeCollection strokes)
+    {
+        if (!_trackedStrokePages.Remove(strokes))
+            return;
+
+        strokes.StrokesChanged -= PageStrokes_StrokesChanged;
+        _strokeSnapshots.Remove(strokes);
+    }
+
+    private void ResetTrackedStrokeCollections()
+    {
+        foreach (var strokes in _trackedStrokePages.Keys.ToList())
+            UntrackStrokeCollection(strokes);
+    }
+
+    private void PageStrokes_StrokesChanged(object sender, StrokeCollectionChangedEventArgs e)
+    {
+        if (sender is not StrokeCollection strokes || !_trackedStrokePages.TryGetValue(strokes, out var pageIndex))
+            return;
+
+        // Skip individual eraser events - they will be batched on mouse up
+        if (_viewModel.Toolbar.ActiveTool == ToolbarViewModel.ToolMode.Eraser && e.Removed.Count > 0)
+        {
+            // Find the InkCanvas for this stroke collection and accumulate removals
+            foreach (var (inkCanvas, removals) in _eraserBatchedRemovals)
+            {
+                if (inkCanvas.Strokes == strokes)
+                {
+                    foreach (var stroke in e.Removed)
+                        removals.Add(stroke);
+                    return;
+                }
+            }
+        }
+
+        var previousStrokes = _strokeSnapshots.TryGetValue(strokes, out var snapshot)
+            ? snapshot
+            : strokes.ToList();
+
+        _viewModel.RegisterStrokeChange(pageIndex, e.Added, e.Removed, previousStrokes);
+        _strokeSnapshots[strokes] = strokes.ToList();
+    }
+
     private void ScrollViewer_SizeChanged(object sender, SizeChangedEventArgs e)
     {
         _viewModel.ViewportWidth = (int)e.NewSize.Width;
+    }
+
+    private void PagesControl_Loaded(object sender, RoutedEventArgs e)
+    {
+        if (_pdfScrollViewer != null)
+            _pdfScrollViewer.ScrollChanged -= ScrollViewer_ScrollChanged;
+
+        _pdfScrollViewer = FindVisualChildren<ScrollViewer>(PagesControl).FirstOrDefault();
+        if (_pdfScrollViewer != null)
+        {
+            _pdfScrollViewer.ScrollChanged += ScrollViewer_ScrollChanged;
+            _viewModel.UpdateVisiblePages(_pdfScrollViewer.VerticalOffset, _pdfScrollViewer.ViewportHeight);
+        }
+    }
+
+    private void ScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
+    {
+        if (_pdfScrollViewer == null)
+            return;
+
+        _viewModel.UpdateVisiblePages(_pdfScrollViewer.VerticalOffset, _pdfScrollViewer.ViewportHeight);
     }
 
     private void Window_Drop(object sender, DragEventArgs e)
@@ -144,6 +291,7 @@ public partial class MainWindow : FluentWindow
             _viewModel.SaveCommand.Execute(null);
         }
         _viewModel.Dispose();
+        ResetTrackedStrokeCollections();
         base.OnClosed(e);
     }
 }

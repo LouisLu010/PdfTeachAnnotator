@@ -18,11 +18,24 @@ public class RelayCommand : ICommand
     public RelayCommand(Action execute, Func<bool>? canExecute = null)
         : this(_ => execute(), canExecute != null ? _ => canExecute() : null) { }
 
+    private EventHandler? _canExecuteChanged;
+
     public event EventHandler? CanExecuteChanged
     {
-        add => CommandManager.RequerySuggested += value;
-        remove => CommandManager.RequerySuggested -= value;
+        add
+        {
+            _canExecuteChanged += value;
+            CommandManager.RequerySuggested += value;
+        }
+        remove
+        {
+            _canExecuteChanged -= value;
+            CommandManager.RequerySuggested -= value;
+        }
     }
+
+    public void RaiseCanExecuteChanged()
+        => _canExecuteChanged?.Invoke(this, EventArgs.Empty);
 
     public bool CanExecute(object? parameter) => _canExecute?.Invoke(parameter) ?? true;
     public void Execute(object? parameter) => _execute(parameter);

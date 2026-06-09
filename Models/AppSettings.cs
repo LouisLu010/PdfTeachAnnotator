@@ -25,6 +25,7 @@ public class AppSettings
     public bool EnableSmoothDrawing { get; set; } = true;
     public bool ShowToolTips { get; set; } = true;
     public double DefaultZoomLevel { get; set; } = 1.0;
+    public bool IsSidebarCollapsed { get; set; } = false;
 
     private static readonly string SettingsPath =
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),

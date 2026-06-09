@@ -56,7 +56,7 @@ public class PenIconColorConverter : IMultiValueConverter
         if (values.Length == 2 && values[0] is bool isPenActive && values[1] is Color selectedColor)
         {
             if (isPenActive)
-                return new SolidColorBrush(selectedColor);
+                return Brushes.White;
             return new SolidColorBrush(Color.FromRgb(52, 152, 219)); // Default blue
         }
         return new SolidColorBrush(Color.FromRgb(52, 152, 219));
@@ -130,3 +130,4 @@ public class SizeEqualityConverter : IMultiValueConverter
     public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         => throw new NotSupportedException();
 }
+

@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.Windows.Ink;
 using System.Windows.Input;
 using Microsoft.Win32;
 using PdfTeachAnnotator.Models;
@@ -8,10 +9,21 @@ namespace PdfTeachAnnotator.ViewModels;
 
 public class MainViewModel : ViewModelBase, IDisposable
 {
+    private const int PageBufferSize = 2;
+    private const int PageVerticalMargin = 20;
+
     private readonly PdfRenderService _pdfService = new();
     private readonly AnnotationFileService _annotationService = new();
+    private readonly Stack<IAnnotationCommand> _undoStack = new();
+    private readonly Stack<IAnnotationCommand> _redoStack = new();
+    private bool _isApplyingHistory;
     private string? _currentPdfPath;
     private int _viewportWidth = 800;
+    private int _targetPageWidth = 760;
+    private int _loadedStartIndex = -1;
+    private int _loadedEndIndex = -1;
+    private double _lastVerticalOffset = 0;
+    private double _lastViewportHeight = 0;
     private double _zoomLevel = 1.0;
     private string _currentView = "Home";
     private string _previousView = "Home";
@@ -31,6 +43,7 @@ public class MainViewModel : ViewModelBase, IDisposable
                 OnPropertyChanged(nameof(IsHomeView));
                 OnPropertyChanged(nameof(IsPdfView));
                 OnPropertyChanged(nameof(IsSettingsView));
+                OnPropertyChanged(nameof(IsAboutView));
             }
         }
     }
@@ -44,6 +57,7 @@ public class MainViewModel : ViewModelBase, IDisposable
     public bool IsHomeView => CurrentView == "Home";
     public bool IsPdfView => CurrentView == "Pdf";
     public bool IsSettingsView => CurrentView == "Settings";
+    public bool IsAboutView => CurrentView == "About";
     public bool HasRecentFiles => RecentFiles.Count == 0;
 
     public string? CurrentPdfPath
@@ -58,7 +72,10 @@ public class MainViewModel : ViewModelBase, IDisposable
         set
         {
             if (SetField(ref _zoomLevel, Math.Clamp(value, 0.5, 4.0)))
+            {
                 OnPropertyChanged(nameof(ZoomPercent));
+                UpdateVisiblePages(_lastVerticalOffset, _lastViewportHeight);
+            }
         }
     }
 
@@ -74,13 +91,31 @@ public class MainViewModel : ViewModelBase, IDisposable
         }
     }
 
+    public bool IsSidebarCollapsed
+    {
+        get => Settings.IsSidebarCollapsed;
+        set
+        {
+            if (Settings.IsSidebarCollapsed == value) return;
+            Settings.IsSidebarCollapsed = value;
+            Settings.Save();
+            OnPropertyChanged();
+        }
+    }
+
     public ICommand OpenFileCommand { get; }
     public ICommand ZoomInCommand { get; }
     public ICommand ZoomOutCommand { get; }
     public ICommand ZoomResetCommand { get; }
     public ICommand SaveCommand { get; }
+    private readonly RelayCommand _undoCommand;
+    private readonly RelayCommand _redoCommand;
+
+    public ICommand UndoCommand => _undoCommand;
+    public ICommand RedoCommand => _redoCommand;
     public ICommand ShowHomeCommand { get; }
     public ICommand ShowSettingsCommand { get; }
+    public ICommand ShowAboutCommand { get; }
     public ICommand GoBackCommand { get; }
 
     public MainViewModel()
@@ -90,6 +125,8 @@ public class MainViewModel : ViewModelBase, IDisposable
         ZoomOutCommand = new RelayCommand(() => ZoomLevel -= 0.1);
         ZoomResetCommand = new RelayCommand(() => ZoomLevel = 1.0);
         SaveCommand = new RelayCommand(SaveAnnotations);
+        _undoCommand = new RelayCommand(Undo, () => _undoStack.Count > 0);
+        _redoCommand = new RelayCommand(Redo, () => _redoStack.Count > 0);
         ShowHomeCommand = new RelayCommand(() =>
         {
             PreviousView = CurrentView;
@@ -99,6 +136,11 @@ public class MainViewModel : ViewModelBase, IDisposable
         {
             PreviousView = CurrentView;
             CurrentView = "Settings";
+        });
+        ShowAboutCommand = new RelayCommand(() =>
+        {
+            PreviousView = CurrentView;
+            CurrentView = "About";
         });
         GoBackCommand = new RelayCommand(() => CurrentView = PreviousView);
         Toolbar.ClearAllRequested += ClearAllStrokes;
@@ -132,6 +174,7 @@ public class MainViewModel : ViewModelBase, IDisposable
     {
         _pdfService.OpenDocument(path);
         CurrentPdfPath = path;
+        ClearHistory();
         ReloadPages();
         LoadAnnotations(path);
 
@@ -144,24 +187,113 @@ public class MainViewModel : ViewModelBase, IDisposable
         CurrentView = "Pdf";
     }
 
+    public void RegisterStrokeChange(
+        int pageIndex,
+        StrokeCollection added,
+        StrokeCollection removed,
+        IReadOnlyList<Stroke>? previousStrokes = null)
+    {
+        if (_isApplyingHistory)
+            return;
+
+        if (added.Count == 0 && removed.Count == 0)
+            return;
+
+        var page = Pages.FirstOrDefault(p => p.PageIndex == pageIndex);
+        if (page == null)
+            return;
+
+        PushCommand(new StrokeChangeCommand(pageIndex, GetPageStrokes, page.Strokes, added, removed, previousStrokes));
+    }
+
+    private StrokeCollection? GetPageStrokes(int pageIndex) =>
+        Pages.FirstOrDefault(page => page.PageIndex == pageIndex)?.Strokes;
+
+    private void Undo()
+    {
+        if (_undoStack.Count == 0)
+            return;
+
+        var command = _undoStack.Pop();
+        try
+        {
+            _isApplyingHistory = true;
+            command.Undo();
+            _redoStack.Push(command);
+        }
+        finally
+        {
+            _isApplyingHistory = false;
+            RaiseHistoryChanged();
+        }
+    }
+
+    private void Redo()
+    {
+        if (_redoStack.Count == 0)
+            return;
+
+        var command = _redoStack.Pop();
+        try
+        {
+            _isApplyingHistory = true;
+            command.Redo();
+            _undoStack.Push(command);
+        }
+        finally
+        {
+            _isApplyingHistory = false;
+            RaiseHistoryChanged();
+        }
+    }
+
+    private void PushCommand(IAnnotationCommand command)
+    {
+        _undoStack.Push(command);
+        _redoStack.Clear();
+        RaiseHistoryChanged();
+    }
+
+    private void ClearHistory()
+    {
+        _undoStack.Clear();
+        _redoStack.Clear();
+        RaiseHistoryChanged();
+    }
+
+    private void RaiseHistoryChanged()
+    {
+        CommandManager.InvalidateRequerySuggested();
+        _undoCommand.RaiseCanExecuteChanged();
+        _redoCommand.RaiseCanExecuteChanged();
+    }
+
     private void ReloadPages()
     {
         // Save existing strokes before clearing
-        var existingStrokes = new Dictionary<int, System.Windows.Ink.StrokeCollection>();
+        var existingStrokes = new Dictionary<int, StrokeCollection>();
         foreach (var page in Pages)
         {
             if (page.Strokes.Count > 0)
             {
-                existingStrokes[page.PageIndex] = new System.Windows.Ink.StrokeCollection(page.Strokes);
+                existingStrokes[page.PageIndex] = new StrokeCollection(page.Strokes);
             }
         }
 
         Pages.Clear();
-        int targetWidth = Math.Max(400, _viewportWidth - 40);
-        var rendered = _pdfService.RenderAllPages(targetWidth);
-        for (int i = 0; i < rendered.Count; i++)
+        _loadedStartIndex = -1;
+        _loadedEndIndex = -1;
+        _targetPageWidth = Math.Max(400, _viewportWidth - 40);
+
+        for (int i = 0; i < _pdfService.PageCount; i++)
         {
-            var pageModel = new PageModel { PageIndex = i, Image = rendered[i] };
+            var (pageWidth, pageHeight) = _pdfService.GetPageSize(i, _targetPageWidth);
+            var pageModel = new PageModel
+            {
+                PageIndex = i,
+                PageWidth = pageWidth,
+                PageHeight = pageHeight
+            };
 
             // Restore strokes if they existed
             if (existingStrokes.TryGetValue(i, out var strokes))
@@ -172,6 +304,86 @@ public class MainViewModel : ViewModelBase, IDisposable
 
             Pages.Add(pageModel);
         }
+
+        if (_lastViewportHeight > 0)
+            UpdateVisiblePages(_lastVerticalOffset, _lastViewportHeight);
+        else
+            LoadPageImages(0, Math.Min(PageBufferSize, Pages.Count - 1));
+    }
+
+    public void UpdateVisiblePages(double verticalOffset, double viewportHeight)
+    {
+        _lastVerticalOffset = verticalOffset;
+        _lastViewportHeight = viewportHeight;
+
+        if (_currentPdfPath == null || Pages.Count == 0 || viewportHeight <= 0)
+            return;
+
+        var (firstVisibleIndex, lastVisibleIndex) = GetVisiblePageRange(verticalOffset, viewportHeight);
+        LoadPageImages(firstVisibleIndex, lastVisibleIndex);
+    }
+
+    private (int FirstIndex, int LastIndex) GetVisiblePageRange(double verticalOffset, double viewportHeight)
+    {
+        var visibleTop = Math.Max(0, verticalOffset);
+        var visibleBottom = visibleTop + viewportHeight;
+        var currentTop = 0.0;
+        var firstVisibleIndex = -1;
+        var lastVisibleIndex = -1;
+
+        for (int i = 0; i < Pages.Count; i++)
+        {
+            var page = Pages[i];
+            var itemHeight = page.PageHeight * ZoomLevel + PageVerticalMargin;
+            var currentBottom = currentTop + itemHeight;
+
+            if (currentBottom >= visibleTop && firstVisibleIndex == -1)
+                firstVisibleIndex = i;
+
+            if (currentTop <= visibleBottom)
+                lastVisibleIndex = i;
+            else
+                break;
+
+            currentTop = currentBottom;
+        }
+
+        if (firstVisibleIndex == -1)
+            firstVisibleIndex = Pages.Count - 1;
+        if (lastVisibleIndex == -1)
+            lastVisibleIndex = firstVisibleIndex;
+
+        return (firstVisibleIndex, lastVisibleIndex);
+    }
+
+    private void LoadPageImages(int firstVisibleIndex, int lastVisibleIndex)
+    {
+        if (Pages.Count == 0)
+            return;
+
+        var startIndex = Math.Max(0, firstVisibleIndex - PageBufferSize);
+        var endIndex = Math.Min(Pages.Count - 1, lastVisibleIndex + PageBufferSize);
+
+        if (startIndex == _loadedStartIndex && endIndex == _loadedEndIndex)
+            return;
+
+        if (_loadedStartIndex >= 0 && _loadedEndIndex >= _loadedStartIndex)
+        {
+            for (int i = _loadedStartIndex; i <= _loadedEndIndex; i++)
+            {
+                if (i < startIndex || i > endIndex)
+                    Pages[i].Image = null;
+            }
+        }
+
+        for (int i = startIndex; i <= endIndex; i++)
+        {
+            if (Pages[i].Image == null)
+                Pages[i].Image = _pdfService.RenderPage(i, _targetPageWidth);
+        }
+
+        _loadedStartIndex = startIndex;
+        _loadedEndIndex = endIndex;
     }
 
     private void LoadAnnotations(string pdfPath)
@@ -179,14 +391,23 @@ public class MainViewModel : ViewModelBase, IDisposable
         var annotations = _annotationService.LoadAnnotations(pdfPath);
         if (annotations == null) return;
 
-        foreach (var page in Pages)
+        try
         {
-            if (annotations.TryGetValue(page.PageIndex, out var strokes))
+            _isApplyingHistory = true;
+            foreach (var page in Pages)
             {
-                page.Strokes.Clear();
-                foreach (var stroke in strokes)
-                    page.Strokes.Add(stroke);
+                if (annotations.TryGetValue(page.PageIndex, out var strokes))
+                {
+                    page.Strokes.Clear();
+                    foreach (var stroke in strokes)
+                        page.Strokes.Add(stroke);
+                }
             }
+            ClearHistory();
+        }
+        finally
+        {
+            _isApplyingHistory = false;
         }
     }
 
@@ -206,12 +427,111 @@ public class MainViewModel : ViewModelBase, IDisposable
 
     private void ClearAllStrokes()
     {
-        foreach (var page in Pages)
-            page.Strokes.Clear();
+        try
+        {
+            _isApplyingHistory = true;
+            foreach (var page in Pages)
+                page.Strokes.Clear();
+            ClearHistory();
+        }
+        finally
+        {
+            _isApplyingHistory = false;
+        }
     }
 
     public void Dispose()
     {
         _pdfService.Dispose();
     }
+
+    private interface IAnnotationCommand
+    {
+        void Undo();
+        void Redo();
+    }
+
+    private sealed class StrokeChangeCommand : IAnnotationCommand
+    {
+        private readonly int _pageIndex;
+        private readonly Func<int, StrokeCollection?> _getPageStrokes;
+        private readonly List<StrokeRecord> _addedStrokes;
+        private readonly List<StrokeRecord> _removedStrokes;
+
+        public StrokeChangeCommand(
+            int pageIndex,
+            Func<int, StrokeCollection?> getPageStrokes,
+            StrokeCollection targetStrokes,
+            StrokeCollection added,
+            StrokeCollection removed,
+            IReadOnlyList<Stroke>? previousStrokes)
+        {
+            _pageIndex = pageIndex;
+            _getPageStrokes = getPageStrokes;
+            var currentStrokes = targetStrokes.ToList();
+            _addedStrokes = CreateRecords(currentStrokes, added);
+            _removedStrokes = CreateRecords(previousStrokes ?? currentStrokes, removed);
+        }
+
+        public void Undo()
+        {
+            var targetStrokes = _getPageStrokes(_pageIndex);
+            if (targetStrokes == null)
+                return;
+
+            RemoveStrokes(targetStrokes, _addedStrokes);
+            AddStrokes(targetStrokes, _removedStrokes);
+        }
+
+        public void Redo()
+        {
+            var targetStrokes = _getPageStrokes(_pageIndex);
+            if (targetStrokes == null)
+                return;
+
+            RemoveStrokes(targetStrokes, _removedStrokes);
+            AddStrokes(targetStrokes, _addedStrokes);
+        }
+
+        private static List<StrokeRecord> CreateRecords(IReadOnlyList<Stroke> strokeOrder, StrokeCollection strokes)
+        {
+            var records = new List<StrokeRecord>();
+            foreach (var stroke in strokes)
+            {
+                var index = -1;
+                for (var i = 0; i < strokeOrder.Count; i++)
+                {
+                    if (ReferenceEquals(strokeOrder[i], stroke))
+                    {
+                        index = i;
+                        break;
+                    }
+                }
+
+                records.Add(new StrokeRecord(stroke, index < 0 ? strokeOrder.Count : index));
+            }
+
+            return records;
+        }
+
+        private static void RemoveStrokes(StrokeCollection targetStrokes, IEnumerable<StrokeRecord> records)
+        {
+            foreach (var record in records)
+                targetStrokes.Remove(record.Stroke);
+        }
+
+        private static void AddStrokes(StrokeCollection targetStrokes, IEnumerable<StrokeRecord> records)
+        {
+            foreach (var record in records.OrderBy(r => r.Index))
+            {
+                if (targetStrokes.Contains(record.Stroke))
+                    continue;
+
+                var index = Math.Clamp(record.Index, 0, targetStrokes.Count);
+                targetStrokes.Insert(index, record.Stroke);
+            }
+        }
+    }
+
+    private sealed record StrokeRecord(Stroke Stroke, int Index);
 }

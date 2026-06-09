@@ -10,6 +10,66 @@
                 <ui:ThemesDictionary Theme="Dark" />
                 <ui:ControlsDictionary />
             </ResourceDictionary.MergedDictionaries>
+
+            <!-- 加粗原生滚动条样式 -->
+            <Style x:Key="ScrollBarThumbStyle" TargetType="Thumb">
+                <Setter Property="OverridesDefaultStyle" Value="True"/>
+                <Setter Property="IsTabStop" Value="False"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Thumb">
+                            <!-- 扩大触摸热区：外层透明边框增加触摸区域 -->
+                            <Border Background="Transparent" Padding="14,0">
+                                <Border Background="{TemplateBinding Background}"
+                                        CornerRadius="8"
+                                        Width="16"
+                                        MinHeight="44"
+                                        Margin="1,0,1,0"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style x:Key="ScrollBarButtonStyle" TargetType="RepeatButton">
+                <Setter Property="OverridesDefaultStyle" Value="True"/>
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="RepeatButton">
+                            <Border Background="{TemplateBinding Background}" Height="18"/>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <Style TargetType="ScrollBar">
+                <Setter Property="Width" Value="46"/>
+                <Setter Property="MinWidth" Value="46"/>
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ScrollBar">
+                            <Grid Background="{TemplateBinding Background}">
+                                <Track x:Name="PART_Track" IsDirectionReversed="true">
+                                    <Track.DecreaseRepeatButton>
+                                        <RepeatButton Style="{StaticResource ScrollBarButtonStyle}"
+                                                      Command="ScrollBar.LineUpCommand"/>
+                                    </Track.DecreaseRepeatButton>
+                                    <Track.IncreaseRepeatButton>
+                                        <RepeatButton Style="{StaticResource ScrollBarButtonStyle}"
+                                                      Command="ScrollBar.LineDownCommand"/>
+                                    </Track.IncreaseRepeatButton>
+                                    <Track.Thumb>
+                                        <Thumb Style="{StaticResource ScrollBarThumbStyle}"
+                                               Background="#555555"/>
+                                    </Track.Thumb>
+                                </Track>
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
