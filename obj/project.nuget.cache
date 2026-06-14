@@ -1,11 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "YEgO4UwA8Fg=",
+  "dgSpecHash": "IuG8h3G2Rqk=",
   "success": true,
   "projectFilePath": "C:\\Users\\Louis\\Documents\\PdfTeachAnnotator\\PdfTeachAnnotator.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Louis\\.nuget\\packages\\docnet.core\\2.6.0\\docnet.core.2.6.0.nupkg.sha512",
-    "C:\\Users\\Louis\\.nuget\\packages\\microsoft.net.illink.tasks\\8.0.25\\microsoft.net.illink.tasks.8.0.25.nupkg.sha512",
+    "C:\\Users\\Louis\\.nuget\\packages\\system.reflection.emit\\4.7.0\\system.reflection.emit.4.7.0.nupkg.sha512",
+    "C:\\Users\\Louis\\.nuget\\packages\\tesseract\\5.2.0\\tesseract.5.2.0.nupkg.sha512",
     "C:\\Users\\Louis\\.nuget\\packages\\wpf-ui\\3.0.5\\wpf-ui.3.0.5.nupkg.sha512",
     "C:\\Users\\Louis\\.nuget\\packages\\microsoft.netcore.app.runtime.win-x64\\8.0.25\\microsoft.netcore.app.runtime.win-x64.8.0.25.nupkg.sha512",
     "C:\\Users\\Louis\\.nuget\\packages\\microsoft.windowsdesktop.app.runtime.win-x64\\8.0.25\\microsoft.windowsdesktop.app.runtime.win-x64.8.0.25.nupkg.sha512",

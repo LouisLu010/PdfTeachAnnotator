@@ -55,11 +55,9 @@
               "target": "Package",
               "version": "[2.6.0, )"
             },
-            "Microsoft.NET.ILLink.Tasks": {
-              "suppressParent": "All",
+            "Tesseract": {
               "target": "Package",
-              "version": "[8.0.25, )",
-              "autoReferenced": true
+              "version": "[5.2.0, )"
             },
             "WPF-UI": {
               "target": "Package",
