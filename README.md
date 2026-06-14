@@ -58,6 +58,13 @@
 
 ### ⚙️ 高级功能
 
+- **OCR 文字识别** 🆕
+  - 整篇 PDF 文档识别
+  - 支持中文简体和英文
+  - 实时显示识别进度
+  - 识别结果一键复制
+  - 高精度识别（基于 Tesseract OCR）
+
 - **设置选项**
   - 自动保存开关
   - 启动时显示主页
@@ -71,6 +78,7 @@
   - 拖放打开 PDF 文件
   - 键盘快捷键支持
   - 滑动确认清除（带进度条和勾号）
+  - 触摸屏优化（44x44px 触摸热区）
   - 窗口控制（最小化、最大化、关闭）
 
 ---
@@ -88,22 +96,25 @@
 
 #### 方法 1：下载预编译版本（推荐）
 
-1. 前往 [Releases](https://github.com/yourusername/PdfTeachAnnotator/releases) 页面
-2. 下载最新版本的 `PdfTeachAnnotator.exe`
-3. 双击运行 `PdfTeachAnnotator.exe`
+1. 前往 [Releases](https://github.com/LouisLu010/PdfTeachAnnotator/releases) 页面
+2. 下载最新版本的 `PdfTeachAnnotator-Release.zip`
+3. 解压到任意目录
+4. 双击 `PdfTeachAnnotator.lnk` 快捷方式启动
+
+> **注意**：首次运行可能需要等待几秒钟加载（约 207 MB，包含完整运行时和 OCR 语言包）
 
 #### 方法 2：从源码编译
 
 ```bash
 # 克隆仓库
-git clone https://github.com/yourusername/PdfTeachAnnotator.git
+git clone https://github.com/LouisLu010/PdfTeachAnnotator.git
 cd PdfTeachAnnotator
 
 # 编译项目
 dotnet build -c Release
 
 # 运行应用
-dotnet run --project src/PdfTeachAnnotator/PdfTeachAnnotator.csproj
+dotnet run --project PdfTeachAnnotator.csproj
 ```
 
 ---
@@ -137,7 +148,20 @@ dotnet run --project src/PdfTeachAnnotator/PdfTeachAnnotator.csproj
 - 向右滑动确认条到底
 - 显示绿色勾号后自动清除
 
-#### 3. 视图控制
+#### 3. OCR 文字识别 🆕
+
+**使用 OCR 功能**
+- 点击侧边栏的"🧰工具箱"图标
+- 在 OCR 文字识别卡片中点击"开始识别"
+- 等待识别完成（显示进度：第 X/Y 页）
+- 点击"复制结果"可复制识别文本
+
+**识别说明**
+- 支持中文简体和英文混合文本
+- 识别速度取决于 PDF 页数和复杂度
+- 图片质量较低或手写文字可能影响准确度
+
+#### 4. 视图控制
 
 **缩放** 🔍
 - 放大：点击"🔍+"或滚轮向上
@@ -147,8 +171,9 @@ dotnet run --project src/PdfTeachAnnotator/PdfTeachAnnotator.csproj
 **滚动**
 - 鼠标滚轮：上下滚动
 - 拖动滚动条：快速定位
+- 触摸屏：直接滑动（优化触摸热区）
 
-#### 4. 保存批注
+#### 5. 保存批注
 
 - **自动保存**：关闭文件时自动保存（可在设置中关闭）
 - **手动保存**：点击菜单 → 保存批注
@@ -230,6 +255,13 @@ dotnet run --project src/PdfTeachAnnotator/PdfTeachAnnotator.csproj
 - **灵活的工具配置**：适应不同使用习惯
 - **可扩展架构**：易于添加新功能
 
+#### 7. 🔍 智能 OCR 识别 🆕
+
+- **准确识别**：基于 Tesseract OCR 引擎
+- **多语言支持**：中文简体 + 英文
+- **整篇处理**：一键识别完整 PDF 文档
+- **进度可视化**：实时显示识别进度
+
 ---
 
 ## 🏗️ 技术栈
@@ -240,6 +272,7 @@ dotnet run --project src/PdfTeachAnnotator/PdfTeachAnnotator.csproj
 - **UI 框架**: WPF (Windows Presentation Foundation)
 - **UI 库**: WPF-UI 3.0.5 (Fluent Design)
 - **PDF 引擎**: PDFium.Windows 129.0.6668
+- **OCR 引擎**: Tesseract 5.2.0
 - **数据序列化**: System.Text.Json
 
 ### 架构设计
@@ -253,23 +286,25 @@ dotnet run --project src/PdfTeachAnnotator/PdfTeachAnnotator.csproj
 
 ```
 PdfTeachAnnotator/
-├── src/
-│   └── PdfTeachAnnotator/
-│       ├── Models/              # 数据模型
-│       │   ├── AppSettings.cs
-│       │   ├── PageModel.cs
-│       │   └── RecentFile.cs
-│       ├── ViewModels/          # 视图模型
-│       │   ├── MainViewModel.cs
-│       │   ├── ToolbarViewModel.cs
-│       │   └── ViewModelBase.cs
-│       ├── Services/            # 服务层
-│       │   ├── PdfRenderService.cs
-│       │   └── AnnotationFileService.cs
-│       ├── Converters/          # 值转换器
-│       │   └── Converters.cs
-│       ├── MainWindow.xaml      # 主窗口
-│       └── App.xaml             # 应用程序
+├── Models/              # 数据模型
+│   ├── AppSettings.cs
+│   ├── PageModel.cs
+│   └── RecentFile.cs
+├── ViewModels/          # 视图模型
+│   ├── MainViewModel.cs
+│   ├── ToolbarViewModel.cs
+│   └── ViewModelBase.cs
+├── Services/            # 服务层
+│   ├── PdfRenderService.cs
+│   ├── AnnotationFileService.cs
+│   └── TesseractOcrService.cs
+├── Converters/          # 值转换器
+│   └── Converters.cs
+├── tessdata/            # OCR 语言模型
+│   ├── chi_sim.traineddata
+│   └── eng.traineddata
+├── MainWindow.xaml      # 主窗口
+├── App.xaml             # 应用程序
 ├── README.md
 └── LICENSE
 ```
@@ -290,6 +325,7 @@ PdfTeachAnnotator/
 - [x] 圆形按钮选择大小
 - [x] 批注历史记录（撤销/重做）
 - [x] 触摸屏优化
+- [x] OCR 文字识别（中英文）
 
 ### 计划中 🚧
 
