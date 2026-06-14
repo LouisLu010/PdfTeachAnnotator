@@ -14,6 +14,7 @@ public class MainViewModel : ViewModelBase, IDisposable
 
     private readonly PdfRenderService _pdfService = new();
     private readonly AnnotationFileService _annotationService = new();
+    private readonly TesseractOcrService _ocrService = new();
     private readonly Stack<IAnnotationCommand> _undoStack = new();
     private readonly Stack<IAnnotationCommand> _redoStack = new();
     private bool _isApplyingHistory;
@@ -27,6 +28,10 @@ public class MainViewModel : ViewModelBase, IDisposable
     private double _zoomLevel = 1.0;
     private string _currentView = "Home";
     private string _previousView = "Home";
+    private bool _isOcrRunning;
+    private int _ocrCurrentPage;
+    private int _ocrTotalPages;
+    private string _ocrResult = string.Empty;
 
     public ObservableCollection<PageModel> Pages { get; } = new();
     public ToolbarViewModel Toolbar { get; } = new();
@@ -44,6 +49,7 @@ public class MainViewModel : ViewModelBase, IDisposable
                 OnPropertyChanged(nameof(IsPdfView));
                 OnPropertyChanged(nameof(IsSettingsView));
                 OnPropertyChanged(nameof(IsAboutView));
+                OnPropertyChanged(nameof(IsToolboxView));
             }
         }
     }
@@ -58,6 +64,7 @@ public class MainViewModel : ViewModelBase, IDisposable
     public bool IsPdfView => CurrentView == "Pdf";
     public bool IsSettingsView => CurrentView == "Settings";
     public bool IsAboutView => CurrentView == "About";
+    public bool IsToolboxView => CurrentView == "Toolbox";
     public bool HasRecentFiles => RecentFiles.Count == 0;
 
     public string? CurrentPdfPath
@@ -103,6 +110,32 @@ public class MainViewModel : ViewModelBase, IDisposable
         }
     }
 
+    public bool IsOcrRunning
+    {
+        get => _isOcrRunning;
+        set => SetField(ref _isOcrRunning, value);
+    }
+
+    public int OcrCurrentPage
+    {
+        get => _ocrCurrentPage;
+        set => SetField(ref _ocrCurrentPage, value);
+    }
+
+    public int OcrTotalPages
+    {
+        get => _ocrTotalPages;
+        set => SetField(ref _ocrTotalPages, value);
+    }
+
+    public string OcrResult
+    {
+        get => _ocrResult;
+        set => SetField(ref _ocrResult, value);
+    }
+
+    public string OcrProgressText => _ocrTotalPages > 0 ? $"正在识别：{_ocrCurrentPage} / {_ocrTotalPages}" : "准备识别...";
+
     public ICommand OpenFileCommand { get; }
     public ICommand ZoomInCommand { get; }
     public ICommand ZoomOutCommand { get; }
@@ -114,9 +147,12 @@ public class MainViewModel : ViewModelBase, IDisposable
     public ICommand UndoCommand => _undoCommand;
     public ICommand RedoCommand => _redoCommand;
     public ICommand ShowHomeCommand { get; }
+    public ICommand ShowToolboxCommand { get; }
     public ICommand ShowSettingsCommand { get; }
     public ICommand ShowAboutCommand { get; }
     public ICommand GoBackCommand { get; }
+    public ICommand StartOcrCommand { get; }
+    public ICommand CopyOcrResultCommand { get; }
 
     public MainViewModel()
     {
@@ -132,6 +168,11 @@ public class MainViewModel : ViewModelBase, IDisposable
             PreviousView = CurrentView;
             CurrentView = "Home";
         });
+        ShowToolboxCommand = new RelayCommand(() =>
+        {
+            PreviousView = CurrentView;
+            CurrentView = "Toolbox";
+        });
         ShowSettingsCommand = new RelayCommand(() =>
         {
             PreviousView = CurrentView;
@@ -143,6 +184,8 @@ public class MainViewModel : ViewModelBase, IDisposable
             CurrentView = "About";
         });
         GoBackCommand = new RelayCommand(() => CurrentView = PreviousView);
+        StartOcrCommand = new RelayCommand(async () => await StartOcrAsync(), () => !string.IsNullOrEmpty(_currentPdfPath) && !_isOcrRunning);
+        CopyOcrResultCommand = new RelayCommand(CopyOcrResult, () => !string.IsNullOrEmpty(_ocrResult));
         Toolbar.ClearAllRequested += ClearAllStrokes;
 
         LoadRecentFiles();
@@ -440,9 +483,50 @@ public class MainViewModel : ViewModelBase, IDisposable
         }
     }
 
+    private async Task StartOcrAsync()
+    {
+        if (string.IsNullOrEmpty(_currentPdfPath) || _isOcrRunning)
+            return;
+
+        IsOcrRunning = true;
+        OcrResult = string.Empty;
+        OcrCurrentPage = 0;
+        OcrTotalPages = 0;
+
+        try
+        {
+            var progress = new Progress<(int Current, int Total)>(p =>
+            {
+                OcrCurrentPage = p.Current;
+                OcrTotalPages = p.Total;
+                OnPropertyChanged(nameof(OcrProgressText));
+            });
+
+            OcrResult = await _ocrService.RecognizePdfAsync(_currentPdfPath, progress);
+        }
+        catch (Exception ex)
+        {
+            OcrResult = $"OCR 识别失败：{ex.Message}\n\n{ex.StackTrace}";
+        }
+        finally
+        {
+            IsOcrRunning = false;
+            OnPropertyChanged(nameof(OcrProgressText));
+        }
+    }
+
+    private void CopyOcrResult()
+    {
+        if (!string.IsNullOrEmpty(_ocrResult))
+        {
+            System.Windows.Clipboard.SetText(_ocrResult);
+        }
+    }
+
     public void Dispose()
     {
         _pdfService.Dispose();
+        _ocrService.Dispose();
     }
 
     private interface IAnnotationCommand

@@ -131,3 +131,11 @@ public class SizeEqualityConverter : IMultiValueConverter
         => throw new NotSupportedException();
 }
 
+public class InvertBoolConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        => value is bool b ? !b : true;
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        => value is bool b ? !b : false;
+}

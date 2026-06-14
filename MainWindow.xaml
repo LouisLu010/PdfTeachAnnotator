@@ -20,6 +20,7 @@
         <local:SliderProgressConverter x:Key="SliderProgressConverter"/>
         <local:EraserSizeConverter x:Key="EraserSizeConverter"/>
         <local:SizeEqualityConverter x:Key="SizeEqualityConverter"/>
+        <local:InvertBoolConverter x:Key="InvertBoolConverter"/>
         <!-- Material-style vector icon geometries -->
         <Geometry x:Key="IconOpen">M19,20H4C2.89,20 2,19.1 2,18V6C2,4.89 2.89,4 4,4H10L12,6H19A2,2 0 0,1 21,8H4V18L6.14,10H22.14L20,18C19.79,18.84 19,20 19,20Z</Geometry>
         <Geometry x:Key="IconSave">M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z</Geometry>
@@ -31,6 +32,7 @@
         <Geometry x:Key="IconClear">M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z</Geometry>
         <Geometry x:Key="IconSettings">M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.67 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z</Geometry>
         <Geometry x:Key="IconInfo">M11,17H13V11H11M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20M11,9H13V7H11V9Z</Geometry>
+        <Geometry x:Key="IconToolbox">M20,8H17.19C16.74,7.2 16.12,6.5 15.37,6L17,4.41L15.59,3L13.42,5.17C12.96,5.06 12.5,5 12,5C11.5,5 11.04,5.06 10.59,5.17L8.41,3L7,4.41L8.62,6C7.87,6.5 7.26,7.21 6.81,8H4A2,2 0 0,0 2,10V20A2,2 0 0,0 4,22H20A2,2 0 0,0 22,20V10A2,2 0 0,0 20,8M12,7A3,3 0 0,1 15,10H9A3,3 0 0,1 12,7M4,10H11V12H13V10H20V13H13V15H11V13H4V10M4,20V15H11V17H13V15H20V20H4Z</Geometry>
         <Geometry x:Key="IconChevronLeft">M15.41,7.41L14,6L8,12L14,18L15.41,16.59L10.83,12L15.41,7.41Z</Geometry>
         <Geometry x:Key="IconChevronRight">M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z</Geometry>
         <Geometry x:Key="IconZoomIn">M15.5,14L20.5,19L19,20.5L14,15.5V14.71L13.73,14.43C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.43,13.73L14.71,14H15.5M9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14M12,10H10V12H9V10H7V9H9V7H10V9H12V10Z</Geometry>
@@ -685,7 +687,32 @@
                         <Setter Property="Width" Value="220"/>
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding IsSidebarCollapsed}" Value="True">
-                                <Setter Property="Width" Value="60"/>
+                                <DataTrigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetProperty="Width"
+                                                           To="60"
+                                                           Duration="0:0:0.25">
+                                                <DoubleAnimation.EasingFunction>
+                                                    <QuadraticEase EasingMode="EaseInOut"/>
+                                                </DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </DataTrigger.EnterActions>
+                                <DataTrigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetProperty="Width"
+                                                           To="220"
+                                                           Duration="0:0:0.25">
+                                                <DoubleAnimation.EasingFunction>
+                                                    <QuadraticEase EasingMode="EaseInOut"/>
+                                                </DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </DataTrigger.ExitActions>
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
@@ -700,6 +727,24 @@
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <Path Data="{StaticResource IconHome}" Fill="#3498DB" Width="22" Height="22" Stretch="Uniform"/>
                                 <TextBlock Text="主页" Margin="14,0,0,0" VerticalAlignment="Center" FontSize="14" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource TextFillColorPrimaryBrush}">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsSidebarCollapsed}" Value="True">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </StackPanel>
+                        </Button>
+
+                        <Button Style="{StaticResource SidebarNavButtonStyle}" Command="{Binding ShowToolboxCommand}" ToolTip="工具箱">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Path Data="{StaticResource IconToolbox}" Fill="#E67E22" Width="22" Height="22" Stretch="Uniform"/>
+                                <TextBlock Text="工具箱" Margin="14,0,0,0" VerticalAlignment="Center" FontSize="14" FontWeight="SemiBold"
                                            Foreground="{DynamicResource TextFillColorPrimaryBrush}">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
@@ -756,6 +801,24 @@
             <Grid Grid.Column="1">
             <!-- Home Page -->
             <ContentControl Visibility="{Binding IsHomeView, Converter={StaticResource BoolToVisibilityConverter}}">
+                <ContentControl.Style>
+                    <Style TargetType="ContentControl">
+                        <Setter Property="Opacity" Value="0"/>
+                        <Style.Triggers>
+                            <Trigger Property="Visibility" Value="Visible">
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                           From="0" To="1"
+                                                           Duration="0:0:0.2"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </ContentControl.Style>
                 <ContentControl.Content>
                     <Grid Background="{DynamicResource ApplicationBackgroundBrush}">
                         <Grid.RowDefinitions>
@@ -896,6 +959,24 @@
 
             <!-- Settings Page -->
             <ContentControl Visibility="{Binding IsSettingsView, Converter={StaticResource BoolToVisibilityConverter}}">
+                <ContentControl.Style>
+                    <Style TargetType="ContentControl">
+                        <Setter Property="Opacity" Value="0"/>
+                        <Style.Triggers>
+                            <Trigger Property="Visibility" Value="Visible">
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                           From="0" To="1"
+                                                           Duration="0:0:0.2"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </ContentControl.Style>
                 <ContentControl.Content>
                     <ScrollViewer VerticalScrollBarVisibility="Auto">
                         <StackPanel Margin="40,30" HorizontalAlignment="Left">
@@ -904,9 +985,9 @@
                             <TextBlock Text="设置" FontSize="32" FontWeight="Bold" Margin="0,0,0,8"/>
                             <TextBlock Text="自定义应用程序行为和外观" FontSize="14" Opacity="0.7" Margin="0,0,0,32"/>
 
-                            <WrapPanel Orientation="Horizontal" ItemWidth="380" Margin="0,0,0,16">
+                            <WrapPanel Orientation="Horizontal" ItemWidth="420" Margin="0,0,0,16">
                             <!-- General Settings -->
-                            <ui:CardExpander Icon="{ui:SymbolIcon Settings24}" Header="常规设置" IsExpanded="True" Margin="0,0,16,16" Width="360">
+                            <ui:CardExpander Icon="{ui:SymbolIcon Settings24}" Header="常规设置" IsExpanded="True" Margin="0,0,16,16" Width="400">
                                 <StackPanel Margin="0,16,0,0">
                                     <ui:CardControl Icon="{ui:SymbolIcon Save24}">
                                         <ui:CardControl.Header>
@@ -941,7 +1022,7 @@
                             </ui:CardExpander>
 
                             <!-- Drawing Settings -->
-                            <ui:CardExpander Icon="{ui:SymbolIcon Edit24}" Header="绘图设置" IsExpanded="True" Margin="0,0,16,16" Width="360">
+                            <ui:CardExpander Icon="{ui:SymbolIcon Edit24}" Header="绘图设置" IsExpanded="True" Margin="0,0,16,16" Width="400">
                                 <StackPanel Margin="0,16,0,0">
                                     <ui:CardControl Icon="{ui:SymbolIcon Pen24}">
                                         <ui:CardControl.Header>
@@ -984,7 +1065,7 @@
                             </ui:CardExpander>
 
                             <!-- View Settings -->
-                            <ui:CardExpander Icon="{ui:SymbolIcon Eye24}" Header="视图设置" IsExpanded="True" Margin="0,0,16,16" Width="360">
+                            <ui:CardExpander Icon="{ui:SymbolIcon Eye24}" Header="视图设置" IsExpanded="True" Margin="0,0,16,16" Width="400">
                                 <StackPanel Margin="0,16,0,0">
                                     <ui:CardControl Icon="{ui:SymbolIcon ZoomIn24}">
                                         <ui:CardControl.Header>
@@ -1003,7 +1084,7 @@
                             </ui:CardExpander>
 
                             <!-- Recent Files Settings -->
-                            <ui:CardExpander Icon="{ui:SymbolIcon History24}" Header="最近文件" IsExpanded="True" Margin="0,0,16,16" Width="360">
+                            <ui:CardExpander Icon="{ui:SymbolIcon History24}" Header="最近文件" IsExpanded="True" Margin="0,0,16,16" Width="400">
                                 <StackPanel Margin="0,16,0,0">
                                     <ui:CardControl Icon="{ui:SymbolIcon NumberSymbol24}">
                                         <ui:CardControl.Header>
@@ -1033,7 +1114,7 @@
                             </ui:CardExpander>
 
                             <!-- Theme Settings -->
-                            <ui:CardExpander Icon="{ui:SymbolIcon Color24}" Header="外观" IsExpanded="True" Margin="0,0,16,16" Width="360">
+                            <ui:CardExpander Icon="{ui:SymbolIcon Color24}" Header="外观" IsExpanded="True" Margin="0,0,16,16" Width="400">
                                 <StackPanel Margin="0,16,0,0">
                                     <ui:CardControl Icon="{ui:SymbolIcon WeatherMoon24}">
                                         <ui:CardControl.Header>
@@ -1075,8 +1156,8 @@
                             <TextBlock Text="关于" FontSize="32" FontWeight="Bold" Margin="0,0,0,8"/>
                             <TextBlock Text="PDF 教学批注工具的版本信息和功能说明" FontSize="14" Opacity="0.7" Margin="0,0,0,32"/>
 
-                            <WrapPanel Orientation="Horizontal" ItemWidth="380" Margin="0,0,0,16">
-                            <ui:CardExpander Icon="{ui:SymbolIcon Info24}" Header="应用信息" IsExpanded="True" Margin="0,0,16,16" Width="360">
+                            <WrapPanel Orientation="Horizontal" ItemWidth="420" Margin="0,0,0,16">
+                            <ui:CardExpander Icon="{ui:SymbolIcon Info24}" Header="应用信息" IsExpanded="True" Margin="0,0,16,16" Width="400">
                                 <StackPanel Margin="0,16,0,0">
                                     <ui:CardControl Icon="{ui:SymbolIcon DocumentPdf24}">
                                         <ui:CardControl.Header>
@@ -1098,7 +1179,7 @@
                                 </StackPanel>
                             </ui:CardExpander>
 
-                            <ui:CardExpander Icon="{ui:SymbolIcon Keyboard24}" Header="快捷键" IsExpanded="True" Margin="0,0,16,16" Width="360">
+                            <ui:CardExpander Icon="{ui:SymbolIcon Keyboard24}" Header="快捷键" IsExpanded="True" Margin="0,0,16,16" Width="400">
                                 <StackPanel Margin="0,16,0,0">
                                     <ui:CardControl Icon="{ui:SymbolIcon FolderOpen24}">
                                         <ui:CardControl.Header>
@@ -1129,8 +1210,103 @@
                 </ContentControl.Content>
             </ContentControl>
 
+            <!-- Toolbox View -->
+            <ContentControl Visibility="{Binding IsToolboxView, Converter={StaticResource BoolToVisibilityConverter}}">
+                <ContentControl.Style>
+                    <Style TargetType="ContentControl">
+                        <Setter Property="Opacity" Value="0"/>
+                        <Style.Triggers>
+                            <Trigger Property="Visibility" Value="Visible">
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                           From="0" To="1"
+                                                           Duration="0:0:0.2"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </ContentControl.Style>
+                <ContentControl.Content>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel Margin="40,30" MaxWidth="900">
+                            <!-- Header -->
+                            <StackPanel Margin="0,0,0,30">
+                                <TextBlock Text="工具箱" FontSize="32" FontWeight="Bold"
+                                          Foreground="{DynamicResource TextFillColorPrimaryBrush}"/>
+                                <TextBlock Text="实用工具集合" FontSize="14" Margin="0,8,0,0"
+                                          Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+                            </StackPanel>
+
+                            <!-- OCR Tool -->
+                            <ui:CardExpander Icon="{ui:SymbolIcon DocumentText24}" Header="OCR 文字识别" IsExpanded="True" Margin="0,0,0,16" Width="850">
+                                <StackPanel Margin="0,16,0,0">
+                                    <TextBlock Text="识别 PDF 中的文字内容（支持中英文）" FontSize="13" Opacity="0.7" Margin="0,0,0,16"/>
+
+                                    <!-- Start OCR Button -->
+                                    <ui:Button Content="开始识别" Icon="{ui:SymbolIcon Play24}"
+                                             Command="{Binding StartOcrCommand}"
+                                             IsEnabled="{Binding IsOcrRunning, Converter={StaticResource InvertBoolConverter}}"
+                                             Appearance="Primary" Margin="0,0,0,16"/>
+
+                                    <!-- Progress Bar -->
+                                    <StackPanel Visibility="{Binding IsOcrRunning, Converter={StaticResource BoolToVisibilityConverter}}" Margin="0,0,0,16">
+                                        <TextBlock Text="{Binding OcrProgressText}" FontSize="13" Margin="0,0,0,8"/>
+                                        <ProgressBar IsIndeterminate="True" Height="4"/>
+                                    </StackPanel>
+
+                                    <!-- Result TextBox -->
+                                    <TextBlock Text="识别结果：" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                                    <TextBox Text="{Binding OcrResult, Mode=OneWay}"
+                                           IsReadOnly="True"
+                                           TextWrapping="Wrap"
+                                           AcceptsReturn="True"
+                                           VerticalScrollBarVisibility="Auto"
+                                           Height="300"
+                                           Padding="12"
+                                           FontFamily="Consolas"
+                                           FontSize="12"
+                                           Margin="0,0,0,12"/>
+
+                                    <!-- Copy Result Button -->
+                                    <ui:Button Content="复制结果" Icon="{ui:SymbolIcon Copy24}"
+                                             Command="{Binding CopyOcrResultCommand}"
+                                             Appearance="Secondary"/>
+                                </StackPanel>
+                            </ui:CardExpander>
+
+                            <StackPanel Orientation="Horizontal">
+                                <ui:Button Content="返回" Appearance="Secondary" Icon="{ui:SymbolIcon ArrowLeft24}"
+                                          Command="{Binding GoBackCommand}" Padding="24,12"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </ScrollViewer>
+                </ContentControl.Content>
+            </ContentControl>
+
             <!-- PDF View -->
             <Grid Visibility="{Binding IsPdfView, Converter={StaticResource BoolToVisibilityConverter}}">
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Opacity" Value="0"/>
+                        <Style.Triggers>
+                            <Trigger Property="Visibility" Value="Visible">
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                           From="0" To="1"
+                                                           Duration="0:0:0.2"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
                 <ListBox x:Name="PagesControl"
                          ItemsSource="{Binding Pages}"
                          Background="{DynamicResource ApplicationBackgroundBrush}"
