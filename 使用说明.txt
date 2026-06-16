@@ -1,0 +1,67 @@
+# PDF 教学批注工具 v1.1.0
+
+## 快速开始
+
+1. **启动应用**
+   双击 `PdfTeachAnnotator.lnk` 快捷方式即可启动
+
+2. **如果无法启动**
+   双击 `诊断工具.bat` 进行问题诊断
+
+## 常见问题
+
+### 应用点击后无反应
+
+**可能原因：**
+1. 缺少 Visual C++ 运行库
+2. 文件不完整
+3. 系统不兼容
+
+**解决方法：**
+1. 双击运行 `诊断工具.bat`
+2. 根据诊断结果安装缺失的运行库
+3. 如果提示缺少文件，请重新下载完整的发布包
+
+### Visual C++ 运行库安装
+
+Tesseract OCR 引擎需要 Visual C++ 2015-2022 x64 运行库。
+
+**下载地址：**
+https://aka.ms/vs/17/release/vc_redist.x64.exe
+
+安装后重新启动应用即可。
+
+### 查看错误日志
+
+如果应用崩溃或无法启动，会在应用目录生成以下日志文件：
+
+- `error.log` - 错误详细信息
+- `startup.log` - 启动信息和系统环境
+
+请将这些日志文件发送给开发者以获取帮助。
+
+## 系统要求
+
+- **操作系统**: Windows 10/11 (x64)
+- **运行库**: Visual C++ 2015-2022 x64
+- **内存**: 建议 4GB 以上
+- **磁盘空间**: 约 207 MB
+
+## 功能特性
+
+- ✅ PDF 渲染与显示
+- ✅ 手写批注功能
+- ✅ 多种画笔工具和颜色
+- ✅ OCR 文字识别（中文简体 + 英文）
+- ✅ 自动保存批注
+- ✅ 撤销/重做
+- ✅ 触摸屏优化
+
+## 联系方式
+
+- **GitHub**: https://github.com/LouisLu010/PdfTeachAnnotator
+- **Issues**: https://github.com/LouisLu010/PdfTeachAnnotator/issues
+
+## 许可证
+
+MIT License - Copyright © 2026 Hongjun Lu

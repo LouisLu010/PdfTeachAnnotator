@@ -1,4 +1,12 @@
 /.claude
 /.workflow
 /PdfTeachAnnotator-Release.zip
+/PdfTeachAnnotator-Release/
+/PdfTeachAnnotator-Final/
 /bin
+/obj
+/publish
+/publish_*
+*.log
+check-startup.ps1
+vercel.json
