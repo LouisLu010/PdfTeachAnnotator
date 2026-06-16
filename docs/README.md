@@ -13,10 +13,10 @@ actions:
 features:
   - title: 🎨 丰富的批注工具
     details: 提供多种颜色和粗细的画笔，以及灵活的橡皮擦工具，满足各种批注需求
+  - title: 🔍 OCR 文字识别
+    details: 基于 Tesseract OCR 引擎，支持中文简体和英文识别，高精度整篇 PDF 文档识别
   - title: 💾 自动保存
     details: 支持自动保存批注，关闭文件时无需手动保存，批注数据永不丢失
-  - title: 🔍 灵活缩放
-    details: 支持 50% 到 400% 的缩放范围，鼠标滚轮配合 Ctrl 键快速调整视图
   - title: 📁 最近文件
     details: 自动记录最近访问的 PDF 文件，快速打开常用文档
   - title: ⚙️ 个性化设置
@@ -30,14 +30,15 @@ footer: MIT Licensed | Copyright © 2026 Hongjun Lu
 
 ### 安装
 
-从 [GitHub Releases](https://github.com/LouisLu010/PdfTeachAnnotator/releases) 下载最新版本的安装包。
+从 [GitHub Releases](https://github.com/LouisLu010/PdfTeachAnnotator/releases) 下载最新版本的 `PdfTeachAnnotator-Release.zip`，解压后双击快捷方式启动。
 
 ### 使用
 
 1. 打开应用程序
 2. 点击"打开 PDF"按钮或拖拽 PDF 文件到窗口
 3. 使用工具栏中的画笔工具进行批注
-4. 按 `Ctrl+S` 保存批注
+4. 使用工具箱中的 OCR 功能识别 PDF 文字
+5. 按 `Ctrl+S` 保存批注
 
 ## 系统要求
 

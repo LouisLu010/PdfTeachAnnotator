@@ -6,20 +6,24 @@
 
 从 [GitHub Releases](https://github.com/LouisLu010/PdfTeachAnnotator/releases) 页面下载最新版本：
 
-- **Windows 安装包**: `PdfTeachAnnotator-Setup.exe`
-- **便携版**: `PdfTeachAnnotator-Portable.zip`
+- **发布包**: `PdfTeachAnnotator-Release.zip`
 
 ### 系统要求
 
-- **操作系统**: Windows 10 或更高版本
-- **运行环境**: .NET 8.0 Runtime（安装包会自动检测并提示安装）
-- **磁盘空间**: 至少 100 MB 可用空间
+- **操作系统**: Windows 10/11 (x64)
+- **运行环境**: .NET 8.0 或更高版本
+- **内存**: 建议 4GB 以上
+- **磁盘空间**: 约 207 MB（包含完整运行时和 OCR 语言包）
 
 ### 安装步骤
 
-1. 双击下载的 `PdfTeachAnnotator-Setup.exe`
-2. 按照安装向导提示完成安装
-3. 安装完成后，从开始菜单或桌面快捷方式启动应用
+1. 下载 `PdfTeachAnnotator-Release.zip`
+2. 解压到任意目录
+3. 双击 `PdfTeachAnnotator.lnk` 快捷方式启动
+
+::: tip 提示
+首次运行可能需要等待几秒钟加载。所有依赖已包含在发布包中，无需额外安装。
+:::
 
 ## 首次使用
 
