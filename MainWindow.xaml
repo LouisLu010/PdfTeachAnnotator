@@ -5,7 +5,7 @@
         xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         Title="PDF 教学批注工具" Height="700" Width="1000"
         WindowState="Maximized"
-        Icon="file:///C:/Users/Louis/Documents/PdfTeachAnnotator/app.ico"
+        Icon="pack://application:,,,/app.ico"
         ExtendsContentIntoTitleBar="True"
         WindowBackdropType="Mica"
         AllowDrop="True" Drop="Window_Drop" DragOver="Window_DragOver">
