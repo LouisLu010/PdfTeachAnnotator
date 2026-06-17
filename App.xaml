@@ -9,6 +9,8 @@
             <ResourceDictionary.MergedDictionaries>
                 <ui:ThemesDictionary Theme="Dark" />
                 <ui:ControlsDictionary />
+                <!-- 加载自定义主题资源 -->
+                <ResourceDictionary Source="Resources/Theme.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
             <!-- 加粗原生滚动条样式 -->
