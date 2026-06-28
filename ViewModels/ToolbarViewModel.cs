@@ -1,5 +1,6 @@
 using System.Windows.Ink;
 using System.Windows.Media;
+using Color = System.Windows.Media.Color;
 
 namespace PdfTeachAnnotator.ViewModels;
 

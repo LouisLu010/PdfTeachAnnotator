@@ -14,7 +14,7 @@ public class MainViewModel : ViewModelBase, IDisposable
 
     private readonly PdfRenderService _pdfService = new();
     private readonly AnnotationFileService _annotationService = new();
-    private readonly TesseractOcrService _ocrService = new();
+    private IOcrService? _ocrService;
     private readonly Stack<IAnnotationCommand> _undoStack = new();
     private readonly Stack<IAnnotationCommand> _redoStack = new();
     private bool _isApplyingHistory;
@@ -38,6 +38,28 @@ public class MainViewModel : ViewModelBase, IDisposable
     public ToolbarViewModel Toolbar { get; } = new();
     public AppSettings Settings { get; } = AppSettings.Load();
     public ObservableCollection<RecentFile> RecentFiles { get; } = new();
+    public string[] OcrEngines { get; } = [OcrEngineNames.Tesseract, OcrEngineNames.IronOcr, OcrEngineNames.PaddleOcr];
+
+    public string SelectedOcrEngine
+    {
+        get => Settings.OcrEngine;
+        set
+        {
+            if (Settings.OcrEngine == value) return;
+            Settings.OcrEngine = value;
+            Settings.Save();
+            ResetOcrService();
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(OcrEngineDescription));
+        }
+    }
+
+    public string OcrEngineDescription => SelectedOcrEngine switch
+    {
+        OcrEngineNames.IronOcr => "商业 OCR 引擎，中文识别可尝试，可能显示授权水印。",
+        OcrEngineNames.PaddleOcr => "高准确率中文 OCR，性能要求较高；当前为预留选项，需配置 PP-OCR 模型后启用。",
+        _ => "默认本地 Tesseract OCR，离线可用，资源占用较低。"
+    };
 
     public string CurrentView
     {
@@ -555,7 +577,7 @@ public class MainViewModel : ViewModelBase, IDisposable
                 OnPropertyChanged(nameof(OcrProgressText));
             });
 
-            OcrResult = await _ocrService.RecognizePdfAsync(_currentPdfPath, progress);
+            OcrResult = await GetOcrService().RecognizePdfAsync(_currentPdfPath, progress);
         }
         catch (Exception ex)
         {
@@ -566,6 +588,18 @@ public class MainViewModel : ViewModelBase, IDisposable
             IsOcrRunning = false;
             OnPropertyChanged(nameof(OcrProgressText));
         }
+    }
+
+    private IOcrService GetOcrService()
+    {
+        _ocrService ??= OcrServiceFactory.Create(Settings.OcrEngine);
+        return _ocrService;
+    }
+
+    private void ResetOcrService()
+    {
+        _ocrService?.Dispose();
+        _ocrService = null;
     }
 
     private void CopyOcrResult()
@@ -579,7 +613,7 @@ public class MainViewModel : ViewModelBase, IDisposable
     public void Dispose()
     {
         _pdfService.Dispose();
-        _ocrService.Dispose();
+        _ocrService?.Dispose();
     }
 
     private interface IAnnotationCommand

@@ -5,7 +5,7 @@ using Tesseract;
 
 namespace PdfTeachAnnotator.Services;
 
-public class TesseractOcrService : IDisposable
+public class TesseractOcrService : IOcrService
 {
     private TesseractEngine? _engine;
     private readonly string _tessDataPath;

@@ -3,6 +3,13 @@ using System.Text.Json;
 
 namespace PdfTeachAnnotator.Models;
 
+public static class OcrEngineNames
+{
+    public const string Tesseract = "Tesseract";
+    public const string IronOcr = "IronOcr";
+    public const string PaddleOcr = "PaddleOCR";
+}
+
 public class RecentFile
 {
     public string FilePath { get; set; } = string.Empty;
@@ -26,6 +33,7 @@ public class AppSettings
     public bool ShowToolTips { get; set; } = true;
     public double DefaultZoomLevel { get; set; } = 1.0;
     public bool IsSidebarCollapsed { get; set; } = false;
+    public string OcrEngine { get; set; } = OcrEngineNames.Tesseract;
 
     private static readonly string SettingsPath =
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
