@@ -23,6 +23,7 @@ public class MainViewModel : ViewModelBase, IDisposable
     private int _targetPageWidth = 760;
     private int _loadedStartIndex = -1;
     private int _loadedEndIndex = -1;
+    private int _firstVisiblePageIndex;
     private double _lastVerticalOffset = 0;
     private double _lastViewportHeight = 0;
     private double _zoomLevel = 1.0;
@@ -70,8 +71,17 @@ public class MainViewModel : ViewModelBase, IDisposable
     public string? CurrentPdfPath
     {
         get => _currentPdfPath;
-        private set => SetField(ref _currentPdfPath, value);
+        private set
+        {
+            if (SetField(ref _currentPdfPath, value))
+            {
+                OnPropertyChanged(nameof(HasCurrentPdf));
+                CommandManager.InvalidateRequerySuggested();
+            }
+        }
     }
+
+    public bool HasCurrentPdf => !string.IsNullOrEmpty(_currentPdfPath);
 
     public double ZoomLevel
     {
@@ -87,6 +97,15 @@ public class MainViewModel : ViewModelBase, IDisposable
     }
 
     public string ZoomPercent => $"{ZoomLevel * 100:F0}%";
+
+    public int FirstVisiblePageIndex
+    {
+        get => _firstVisiblePageIndex;
+        private set => SetField(ref _firstVisiblePageIndex, value);
+    }
+
+    public string PageIndicatorText =>
+        Pages.Count == 0 ? string.Empty : $"第 {FirstVisiblePageIndex + 1} 页 / 共 {Pages.Count} 页";
 
     public int ViewportWidth
     {
@@ -113,7 +132,11 @@ public class MainViewModel : ViewModelBase, IDisposable
     public bool IsOcrRunning
     {
         get => _isOcrRunning;
-        set => SetField(ref _isOcrRunning, value);
+        set
+        {
+            if (SetField(ref _isOcrRunning, value))
+                CommandManager.InvalidateRequerySuggested();
+        }
     }
 
     public int OcrCurrentPage
@@ -131,10 +154,27 @@ public class MainViewModel : ViewModelBase, IDisposable
     public string OcrResult
     {
         get => _ocrResult;
-        set => SetField(ref _ocrResult, value);
+        set
+        {
+            if (SetField(ref _ocrResult, value))
+                CommandManager.InvalidateRequerySuggested();
+        }
     }
 
     public string OcrProgressText => _ocrTotalPages > 0 ? $"正在识别：{_ocrCurrentPage} / {_ocrTotalPages}" : "准备识别...";
+
+    public bool IsDarkMode
+    {
+        get => string.Equals(Settings.Theme, "Dark", StringComparison.OrdinalIgnoreCase);
+        set
+        {
+            var theme = value ? "Dark" : "Light";
+            if (Settings.Theme == theme) return;
+            Settings.Theme = theme;
+            Settings.Save();
+            OnPropertyChanged();
+        }
+    }
 
     public ICommand OpenFileCommand { get; }
     public ICommand ZoomInCommand { get; }
@@ -153,6 +193,8 @@ public class MainViewModel : ViewModelBase, IDisposable
     public ICommand GoBackCommand { get; }
     public ICommand StartOcrCommand { get; }
     public ICommand CopyOcrResultCommand { get; }
+    public ICommand ToggleThemeCommand { get; }
+    public ICommand ToggleSidebarCommand { get; }
 
     public MainViewModel()
     {
@@ -186,6 +228,8 @@ public class MainViewModel : ViewModelBase, IDisposable
         GoBackCommand = new RelayCommand(() => CurrentView = PreviousView);
         StartOcrCommand = new RelayCommand(async () => await StartOcrAsync(), () => !string.IsNullOrEmpty(_currentPdfPath) && !_isOcrRunning);
         CopyOcrResultCommand = new RelayCommand(CopyOcrResult, () => !string.IsNullOrEmpty(_ocrResult));
+        ToggleThemeCommand = new RelayCommand(() => IsDarkMode = !IsDarkMode);
+        ToggleSidebarCommand = new RelayCommand(() => IsSidebarCollapsed = !IsSidebarCollapsed);
         Toolbar.ClearAllRequested += ClearAllStrokes;
 
         LoadRecentFiles();
@@ -326,6 +370,7 @@ public class MainViewModel : ViewModelBase, IDisposable
         Pages.Clear();
         _loadedStartIndex = -1;
         _loadedEndIndex = -1;
+        _firstVisiblePageIndex = 0;
         _targetPageWidth = Math.Max(400, _viewportWidth - 40);
 
         for (int i = 0; i < _pdfService.PageCount; i++)
@@ -348,6 +393,8 @@ public class MainViewModel : ViewModelBase, IDisposable
             Pages.Add(pageModel);
         }
 
+        OnPropertyChanged(nameof(PageIndicatorText));
+
         if (_lastViewportHeight > 0)
             UpdateVisiblePages(_lastVerticalOffset, _lastViewportHeight);
         else
@@ -364,6 +411,12 @@ public class MainViewModel : ViewModelBase, IDisposable
 
         var (firstVisibleIndex, lastVisibleIndex) = GetVisiblePageRange(verticalOffset, viewportHeight);
         LoadPageImages(firstVisibleIndex, lastVisibleIndex);
+
+        if (firstVisibleIndex != _firstVisiblePageIndex)
+        {
+            FirstVisiblePageIndex = firstVisibleIndex;
+            OnPropertyChanged(nameof(PageIndicatorText));
+        }
     }
 
     private (int FirstIndex, int LastIndex) GetVisiblePageRange(double verticalOffset, double viewportHeight)
