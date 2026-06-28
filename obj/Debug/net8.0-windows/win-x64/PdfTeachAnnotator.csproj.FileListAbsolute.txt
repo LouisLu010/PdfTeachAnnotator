@@ -1213,7 +1213,6 @@ C:\Users\Louis\Documents\PdfTeachAnnotator\bin\Debug\net8.0-windows\win-x64\crea
 C:\Users\Louis\Documents\PdfTeachAnnotator\bin\Debug\net8.0-windows\win-x64\hostfxr.dll
 C:\Users\Louis\Documents\PdfTeachAnnotator\bin\Debug\net8.0-windows\win-x64\hostpolicy.dll
 C:\Users\Louis\Documents\PdfTeachAnnotator\bin\Debug\net8.0-windows\win-x64\mscordaccore.dll
-C:\Users\Louis\Documents\PdfTeachAnnotator\bin\Debug\net8.0-windows\win-x64\mscordaccore_amd64_amd64_8.0.2526.11203.dll
 C:\Users\Louis\Documents\PdfTeachAnnotator\bin\Debug\net8.0-windows\win-x64\mscordbi.dll
 C:\Users\Louis\Documents\PdfTeachAnnotator\bin\Debug\net8.0-windows\win-x64\mscorrc.dll
 C:\Users\Louis\Documents\PdfTeachAnnotator\bin\Debug\net8.0-windows\win-x64\msquic.dll
@@ -1467,3 +1466,18 @@ C:\Users\Louis\Documents\PdfTeachAnnotator\obj\Debug\net8.0-windows\win-x64\refi
 C:\Users\Louis\Documents\PdfTeachAnnotator\obj\Debug\net8.0-windows\win-x64\PdfTeachAnnotator.pdb
 C:\Users\Louis\Documents\PdfTeachAnnotator\obj\Debug\net8.0-windows\win-x64\PdfTeachAnnotator.genruntimeconfig.cache
 C:\Users\Louis\Documents\PdfTeachAnnotator\obj\Debug\net8.0-windows\win-x64\ref\PdfTeachAnnotator.dll
+C:\Users\Louis\Documents\PdfTeachAnnotator\obj\Debug\net8.0-windows\win-x64\Resources\Buttons.baml
+C:\Users\Louis\Documents\PdfTeachAnnotator\obj\Debug\net8.0-windows\win-x64\Resources\Colors.baml
+C:\Users\Louis\Documents\PdfTeachAnnotator\obj\Debug\net8.0-windows\win-x64\Resources\Theme.baml
+C:\Users\Louis\Documents\PdfTeachAnnotator\obj\Debug\net8.0-windows\win-x64\PdfTeachAnnotator_Content.g.cs
+C:\Users\Louis\Documents\PdfTeachAnnotator\bin\Debug\net8.0-windows\win-x64\tessdata\chi_sim.traineddata
+C:\Users\Louis\Documents\PdfTeachAnnotator\bin\Debug\net8.0-windows\win-x64\tessdata\eng.traineddata
+C:\Users\Louis\Documents\PdfTeachAnnotator\bin\Debug\net8.0-windows\win-x64\诊断工具.bat
+C:\Users\Louis\Documents\PdfTeachAnnotator\bin\Debug\net8.0-windows\win-x64\使用说明.txt
+C:\Users\Louis\Documents\PdfTeachAnnotator\bin\Debug\net8.0-windows\win-x64\启动.bat
+C:\Users\Louis\Documents\PdfTeachAnnotator\bin\Debug\net8.0-windows\win-x64\x86\leptonica-1.82.0.dll
+C:\Users\Louis\Documents\PdfTeachAnnotator\bin\Debug\net8.0-windows\win-x64\x86\tesseract50.dll
+C:\Users\Louis\Documents\PdfTeachAnnotator\bin\Debug\net8.0-windows\win-x64\x64\leptonica-1.82.0.dll
+C:\Users\Louis\Documents\PdfTeachAnnotator\bin\Debug\net8.0-windows\win-x64\x64\tesseract50.dll
+C:\Users\Louis\Documents\PdfTeachAnnotator\bin\Debug\net8.0-windows\win-x64\Tesseract.dll
+C:\Users\Louis\Documents\PdfTeachAnnotator\bin\Debug\net8.0-windows\win-x64\mscordaccore_amd64_amd64_8.0.2826.26413.dll

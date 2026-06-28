@@ -14,7 +14,7 @@ public class MainViewModel : ViewModelBase, IDisposable
 
     private readonly PdfRenderService _pdfService = new();
     private readonly AnnotationFileService _annotationService = new();
-    private readonly IronOcrService _ocrService = new();
+    private readonly TesseractOcrService _ocrService = new();
     private readonly Stack<IAnnotationCommand> _undoStack = new();
     private readonly Stack<IAnnotationCommand> _redoStack = new();
     private bool _isApplyingHistory;
@@ -579,7 +579,7 @@ public class MainViewModel : ViewModelBase, IDisposable
     public void Dispose()
     {
         _pdfService.Dispose();
-        ((IDisposable)_ocrService).Dispose();
+        _ocrService.Dispose();
     }
 
     private interface IAnnotationCommand

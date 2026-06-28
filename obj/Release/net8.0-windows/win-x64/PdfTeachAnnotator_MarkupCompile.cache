@@ -10,11 +10,11 @@ none
 false
 TRACE;RELEASE;NET;NET8_0;NETCOREAPP;WINDOWS;WINDOWS7_0;NET5_0_OR_GREATER;NET6_0_OR_GREATER;NET7_0_OR_GREATER;NET8_0_OR_GREATER;NETCOREAPP3_0_OR_GREATER;NETCOREAPP3_1_OR_GREATER;WINDOWS7_0_OR_GREATER
 C:\Users\Louis\Documents\PdfTeachAnnotator\App.xaml
-3-339866393
-2-1614717523
-16-629852442
-2011991374222
-MainWindow.xaml;Views\HomePage.xaml;Views\SettingsPage.xaml;
+677369462
+5767885494
+17-849494430
+222-1488817469
+MainWindow.xaml;Resources\Buttons.xaml;Resources\Colors.xaml;Resources\Theme.xaml;Views\HomePage.xaml;Views\SettingsPage.xaml;
 
 False
 

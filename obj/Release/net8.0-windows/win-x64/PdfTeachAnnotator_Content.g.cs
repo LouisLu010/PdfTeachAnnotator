@@ -9,5 +9,8 @@
 
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("tessdata/chi_sim.traineddata")]
 [assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("tessdata/eng.traineddata")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("%e8%af%8a%e6%96%ad%e5%b7%a5%e5%85%b7.bat")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("%e4%bd%bf%e7%94%a8%e8%af%b4%e6%98%8e.txt")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("%e5%90%af%e5%8a%a8.bat")]
 
 
