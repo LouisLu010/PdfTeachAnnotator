@@ -9,12 +9,14 @@ public class TesseractOcrService : IOcrService
 {
     private TesseractEngine? _engine;
     private readonly string _tessDataPath;
+    private readonly int _renderWidth;
 
-    public TesseractOcrService()
+    public TesseractOcrService(int renderWidth = 2000)
     {
         // tessdata 目录位于应用程序根目录
         var appDirectory = AppDomain.CurrentDomain.BaseDirectory;
         _tessDataPath = Path.Combine(appDirectory, "tessdata");
+        _renderWidth = Math.Clamp(renderWidth, 1200, 3200);
     }
 
     public void InitializeEngine()
@@ -47,7 +49,7 @@ public class TesseractOcrService : IOcrService
                 progress?.Report((i + 1, totalPages));
 
                 // 渲染页面为图片（使用较高分辨率以提高 OCR 准确度）
-                var bitmap = pdfService.RenderPage(i, 2000);
+                var bitmap = pdfService.RenderPage(i, _renderWidth);
 
                 // 执行 OCR 识别
                 var pageText = RecognizeImage(bitmap);

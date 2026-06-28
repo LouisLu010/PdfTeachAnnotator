@@ -4,10 +4,9 @@ namespace PdfTeachAnnotator.Services;
 
 public static class OcrServiceFactory
 {
-    public static IOcrService Create(string engineName) => engineName switch
+    public static IOcrService Create(AppSettings settings) => settings.OcrEngine switch
     {
-        OcrEngineNames.IronOcr => new IronOcrService(),
-        OcrEngineNames.PaddleOcr => new PaddleOcrService(),
-        _ => new TesseractOcrService()
+        OcrEngineNames.PaddleOcr => new PaddleOcrService(settings),
+        _ => new TesseractOcrService(settings.OcrRenderWidth)
     };
 }

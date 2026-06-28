@@ -588,20 +588,103 @@
 
                                 <!-- OCR 引擎 -->
                                 <Border BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="0,0,0,1" Padding="24,20">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
-                                        <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,20,0">
-                                            <TextBlock Text="OCR 引擎" FontSize="15" FontWeight="Medium" Foreground="{DynamicResource TextPrimaryBrush}"/>
-                                            <TextBlock Text="{Binding OcrEngineDescription}" FontSize="13" Foreground="{DynamicResource TextMutedBrush}" Margin="0,2,0,0" TextWrapping="Wrap"/>
-                                        </StackPanel>
-                                        <ComboBox Grid.Column="1" Width="180"
-                                                  ItemsSource="{Binding OcrEngines}"
-                                                  SelectedItem="{Binding SelectedOcrEngine, Mode=TwoWay}"
-                                                  VerticalAlignment="Center"/>
-                                    </Grid>
+                                    <StackPanel>
+                                        <Grid Margin="0,0,0,16">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,20,0">
+                                                <TextBlock Text="OCR 引擎" FontSize="15" FontWeight="Medium" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                                <TextBlock Text="{Binding OcrEngineDescription}" FontSize="13" Foreground="{DynamicResource TextMutedBrush}" Margin="0,2,0,0" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                            <ComboBox Grid.Column="1" Width="180"
+                                                      ItemsSource="{Binding OcrEngines}"
+                                                      SelectedItem="{Binding SelectedOcrEngine, Mode=TwoWay}"
+                                                      VerticalAlignment="Center"/>
+                                        </Grid>
+
+                                        <Grid Margin="0,0,0,12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="200"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,20,0">
+                                                <TextBlock Text="OCR 渲染宽度" FontSize="14" FontWeight="Medium" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                                <TextBlock Text="越高越清晰，但 CPU 与内存占用越大" FontSize="12" Foreground="{DynamicResource TextMutedBrush}" Margin="0,2,0,0"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                                <TextBox Width="78" Text="{Binding OcrRenderWidth, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"/>
+                                                <TextBlock Text=" px" Foreground="{DynamicResource TextMutedBrush}" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <Grid Margin="0,0,0,12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="280"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,20,0">
+                                                <TextBlock Text="PaddleOCR 检测模型目录" FontSize="14" FontWeight="Medium" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                                <TextBlock Text="det 模型目录；PaddleOCR 资源占用较高" FontSize="12" Foreground="{DynamicResource TextMutedBrush}" Margin="0,2,0,0" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                            <TextBox Grid.Column="1" Text="{Binding PaddleOcrDetectionModelDirectory, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"/>
+                                        </Grid>
+
+                                        <Grid Margin="0,0,0,12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="280"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,20,0">
+                                                <TextBlock Text="PaddleOCR 方向分类模型目录" FontSize="14" FontWeight="Medium" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                                <TextBlock Text="cls 模型目录" FontSize="12" Foreground="{DynamicResource TextMutedBrush}" Margin="0,2,0,0" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                            <TextBox Grid.Column="1" Text="{Binding PaddleOcrClassificationModelDirectory, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"/>
+                                        </Grid>
+
+                                        <Grid Margin="0,0,0,12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="280"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,20,0">
+                                                <TextBlock Text="PaddleOCR 识别模型目录" FontSize="14" FontWeight="Medium" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                                <TextBlock Text="rec 模型目录" FontSize="12" Foreground="{DynamicResource TextMutedBrush}" Margin="0,2,0,0" TextWrapping="Wrap"/>
+                                            </StackPanel>
+                                            <TextBox Grid.Column="1" Text="{Binding PaddleOcrRecognitionModelDirectory, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"/>
+                                        </Grid>
+
+                                        <Grid Margin="0,0,0,12">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="280"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,20,0">
+                                                <TextBlock Text="PaddleOCR 字典文件" FontSize="14" FontWeight="Medium" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                                <TextBlock Text="例如 ppocr_keys_v1.txt" FontSize="12" Foreground="{DynamicResource TextMutedBrush}" Margin="0,2,0,0"/>
+                                            </StackPanel>
+                                            <TextBox Grid.Column="1" Text="{Binding PaddleOcrLabelFile, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"/>
+                                        </Grid>
+
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="24"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,20,0">
+                                                <TextBlock Text="PaddleOCR 性能选项" FontSize="14" FontWeight="Medium" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                                <TextBlock Text="MKL-DNN 可提升 CPU 推理速度，但会增加内存占用" FontSize="12" Foreground="{DynamicResource TextMutedBrush}" Margin="0,2,0,0"/>
+                                            </StackPanel>
+                                            <ToggleButton Grid.Column="1" Style="{StaticResource ToggleSwitchStyle}" IsChecked="{Binding PaddleOcrEnableMkldnn}"/>
+                                            <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
+                                                <TextBlock Text="线程" Foreground="{DynamicResource TextMutedBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                                <TextBox Width="48" Text="{Binding PaddleOcrCpuThreads, Mode=TwoWay, UpdateSourceTrigger=LostFocus}"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </StackPanel>
                                 </Border>
 
                                 <!-- 清空最近访问 -->

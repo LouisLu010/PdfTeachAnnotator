@@ -6,7 +6,6 @@ namespace PdfTeachAnnotator.Models;
 public static class OcrEngineNames
 {
     public const string Tesseract = "Tesseract";
-    public const string IronOcr = "IronOcr";
     public const string PaddleOcr = "PaddleOCR";
 }
 
@@ -34,6 +33,13 @@ public class AppSettings
     public double DefaultZoomLevel { get; set; } = 1.0;
     public bool IsSidebarCollapsed { get; set; } = false;
     public string OcrEngine { get; set; } = OcrEngineNames.Tesseract;
+    public int OcrRenderWidth { get; set; } = 2000;
+    public string PaddleOcrDetectionModelDirectory { get; set; } = string.Empty;
+    public string PaddleOcrClassificationModelDirectory { get; set; } = string.Empty;
+    public string PaddleOcrRecognitionModelDirectory { get; set; } = string.Empty;
+    public string PaddleOcrLabelFile { get; set; } = string.Empty;
+    public bool PaddleOcrEnableMkldnn { get; set; } = true;
+    public int PaddleOcrCpuThreads { get; set; } = 4;
 
     private static readonly string SettingsPath =
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
