@@ -1,0 +1,311 @@
+<!--
+    这是 MainWindow.xaml 工具栏部分的现代化改进版本
+    使用新的资源字典中的颜色和样式
+-->
+
+<!-- 改进后的工具栏：分组、清晰、带标签 -->
+<ToolBarTray DockPanel.Dock="Top"
+             Background="{StaticResource SurfaceBrush}"
+             Visibility="{Binding IsPdfView, Converter={StaticResource BoolToVisibilityConverter}}">
+    <ToolBar Background="{StaticResource SurfaceBrush}"
+             Padding="{StaticResource SpacingLG}">
+
+        <!-- 📁 文件操作组 -->
+        <StackPanel Orientation="Horizontal" Margin="0,0,16,0">
+            <Button Style="{StaticResource IconButtonStyle}"
+                    ToolTip="打开 PDF (Ctrl+O)"
+                    Command="{Binding OpenFileCommand}">
+                <Path Data="{StaticResource IconOpen}"
+                      Fill="{StaticResource TextPrimaryBrush}"
+                      Width="20" Height="20"
+                      Stretch="Uniform"/>
+            </Button>
+
+            <Button Style="{StaticResource IconButtonStyle}"
+                    ToolTip="保存批注 (Ctrl+S)"
+                    Command="{Binding SaveCommand}">
+                <Path Data="{StaticResource IconSave}"
+                      Fill="{StaticResource SuccessBrush}"
+                      Width="20" Height="20"
+                      Stretch="Uniform"/>
+            </Button>
+        </StackPanel>
+
+        <Separator Margin="0,4" Height="32"/>
+
+        <!-- 🎨 绘图工具组 -->
+        <StackPanel Orientation="Horizontal" Margin="16,0">
+            <TextBlock Text="工具"
+                       VerticalAlignment="Center"
+                       Margin="0,0,12,0"
+                       Foreground="{StaticResource TextSecondaryBrush}"
+                       FontSize="{StaticResource FontSizeSM}"
+                       FontWeight="Medium"/>
+
+            <ToggleButton Style="{StaticResource IconToggleButtonStyle}"
+                          IsChecked="{Binding Toolbar.IsPenMode}"
+                          ToolTip="画笔工具 (P)">
+                <Path Data="{StaticResource IconPen}"
+                      Fill="{StaticResource PenBrush}"
+                      Width="20" Height="20"
+                      Stretch="Uniform"/>
+            </ToggleButton>
+
+            <ToggleButton Style="{StaticResource IconToggleButtonStyle}"
+                          IsChecked="{Binding Toolbar.IsEraserMode}"
+                          ToolTip="橡皮擦 (E)">
+                <Path Data="{StaticResource IconEraser}"
+                      Fill="{StaticResource EraserBrush}"
+                      Width="20" Height="20"
+                      Stretch="Uniform"/>
+            </ToggleButton>
+        </StackPanel>
+
+        <Separator Margin="0,4" Height="32"/>
+
+        <!-- 📏 笔刷设置组 -->
+        <StackPanel Orientation="Horizontal" Margin="16,0">
+            <TextBlock Text="粗细"
+                       VerticalAlignment="Center"
+                       Margin="0,0,12,0"
+                       Foreground="{StaticResource TextSecondaryBrush}"
+                       FontSize="{StaticResource FontSizeSM}"
+                       FontWeight="Medium"/>
+
+            <ComboBox Width="100"
+                      Height="32"
+                      SelectedValue="{Binding Toolbar.PenSize}"
+                      SelectedValuePath="Tag">
+                <ComboBoxItem Content="细 (2px)" Tag="2"/>
+                <ComboBoxItem Content="中 (4px)" Tag="4" IsSelected="True"/>
+                <ComboBoxItem Content="粗 (6px)" Tag="6"/>
+                <ComboBoxItem Content="特粗 (10px)" Tag="10"/>
+            </ComboBox>
+        </StackPanel>
+
+        <Separator Margin="0,4" Height="32"/>
+
+        <!-- 🎨 颜色选择组 -->
+        <StackPanel Orientation="Horizontal" Margin="16,0">
+            <TextBlock Text="颜色"
+                       VerticalAlignment="Center"
+                       Margin="0,0,12,0"
+                       Foreground="{StaticResource TextSecondaryBrush}"
+                       FontSize="{StaticResource FontSizeSM}"
+                       FontWeight="Medium"/>
+
+            <!-- 常用颜色快捷按钮 -->
+            <ItemsControl ItemsSource="{Binding Toolbar.QuickColors}"
+                          VerticalAlignment="Center">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Button Command="{Binding DataContext.Toolbar.SetPenColorCommand,
+                                        RelativeSource={RelativeSource AncestorType=Window}}"
+                                CommandParameter="{Binding}"
+                                Width="32" Height="32"
+                                Margin="2,0"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Cursor="Hand"
+                                ToolTip="选择颜色">
+                            <Grid>
+                                <!-- 颜色圆圈 -->
+                                <Ellipse Width="24" Height="24"
+                                       Fill="{Binding}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+
+                                <!-- 选中指示器 -->
+                                <Ellipse Width="24" Height="24"
+                                       Stroke="{StaticResource PrimaryBrush}"
+                                       StrokeThickness="3"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Visibility="{Binding Path=IsSelected,
+                                                  Converter={StaticResource BoolToVisibilityConverter}}"/>
+                            </Grid>
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}"
+                                            Padding="4"
+                                            CornerRadius="4">
+                                        <ContentPresenter/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <!-- 更多颜色按钮 -->
+            <Button Style="{StaticResource IconButtonStyle}"
+                    ToolTip="更多颜色..."
+                    Command="{Binding ShowColorPickerCommand}">
+                <Path Data="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M11,16.5L6.5,12L7.91,10.59L11,13.67L16.59,8.09L18,9.5L11,16.5Z"
+                      Fill="{StaticResource TextSecondaryBrush}"
+                      Width="20" Height="20"
+                      Stretch="Uniform"/>
+            </Button>
+        </StackPanel>
+
+        <Separator Margin="0,4" Height="32"/>
+
+        <!-- ↶ 撤销/重做组 -->
+        <StackPanel Orientation="Horizontal" Margin="16,0">
+            <Button Style="{StaticResource IconButtonStyle}"
+                    ToolTip="撤销 (Ctrl+Z)"
+                    Command="{Binding UndoCommand}">
+                <Path Data="{StaticResource IconUndo}"
+                      Fill="{StaticResource TextPrimaryBrush}"
+                      Width="20" Height="20"
+                      Stretch="Uniform"/>
+            </Button>
+
+            <Button Style="{StaticResource IconButtonStyle}"
+                    ToolTip="重做 (Ctrl+Y)"
+                    Command="{Binding RedoCommand}">
+                <Path Data="{StaticResource IconRedo}"
+                      Fill="{StaticResource TextPrimaryBrush}"
+                      Width="20" Height="20"
+                      Stretch="Uniform"/>
+            </Button>
+
+            <Button Style="{StaticResource IconButtonStyle}"
+                    ToolTip="清除全部批注"
+                    Command="{Binding ClearAllCommand}">
+                <Path Data="{StaticResource IconClear}"
+                      Fill="{StaticResource ErrorBrush}"
+                      Width="20" Height="20"
+                      Stretch="Uniform"/>
+            </Button>
+        </StackPanel>
+
+        <Separator Margin="0,4" Height="32"/>
+
+        <!-- 🔍 视图控制组 -->
+        <StackPanel Orientation="Horizontal" Margin="16,0">
+            <Button Style="{StaticResource IconButtonStyle}"
+                    ToolTip="放大 (Ctrl +)"
+                    Command="{Binding ZoomInCommand}">
+                <Path Data="{StaticResource IconZoomIn}"
+                      Fill="{StaticResource TextPrimaryBrush}"
+                      Width="20" Height="20"
+                      Stretch="Uniform"/>
+            </Button>
+
+            <Button Style="{StaticResource IconButtonStyle}"
+                    ToolTip="缩小 (Ctrl -)"
+                    Command="{Binding ZoomOutCommand}">
+                <Path Data="{StaticResource IconZoomOut}"
+                      Fill="{StaticResource TextPrimaryBrush}"
+                      Width="20" Height="20"
+                      Stretch="Uniform"/>
+            </Button>
+
+            <Button Style="{StaticResource IconButtonStyle}"
+                    ToolTip="实际大小 (Ctrl 0)"
+                    Command="{Binding ZoomResetCommand}">
+                <Path Data="{StaticResource IconZoomReset}"
+                      Fill="{StaticResource TextPrimaryBrush}"
+                      Width="20" Height="20"
+                      Stretch="Uniform"/>
+            </Button>
+        </StackPanel>
+
+        <!-- Spacer - 右对齐菜单 -->
+        <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Width="0"/>
+
+        <!-- 📋 菜单按钮 -->
+        <Button Style="{StaticResource IconButtonStyle}"
+                ToolTip="菜单"
+                Click="MenuButton_Click">
+            <Path Data="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z"
+                  Fill="{StaticResource TextPrimaryBrush}"
+                  Width="20" Height="20"
+                  Stretch="Uniform"/>
+            <Button.ContextMenu>
+                <ContextMenu x:Name="MainMenu">
+                    <MenuItem Header="主页" Command="{Binding ShowHomeCommand}">
+                        <MenuItem.Icon>
+                            <Path Data="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z"
+                                  Fill="{StaticResource PrimaryBrush}"
+                                  Width="16" Height="16"
+                                  Stretch="Uniform"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <Separator/>
+                    <MenuItem Header="打开 PDF..." Command="{Binding OpenFileCommand}">
+                        <MenuItem.Icon>
+                            <Path Data="{StaticResource IconOpen}"
+                                  Fill="{StaticResource PrimaryBrush}"
+                                  Width="16" Height="16"
+                                  Stretch="Uniform"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="保存批注" Command="{Binding SaveCommand}">
+                        <MenuItem.Icon>
+                            <Path Data="{StaticResource IconSave}"
+                                  Fill="{StaticResource SuccessBrush}"
+                                  Width="16" Height="16"
+                                  Stretch="Uniform"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <Separator/>
+                    <MenuItem Header="设置" Command="{Binding ShowSettingsCommand}">
+                        <MenuItem.Icon>
+                            <Path Data="{StaticResource IconSettings}"
+                                  Fill="{StaticResource TextSecondaryBrush}"
+                                  Width="16" Height="16"
+                                  Stretch="Uniform"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <MenuItem Header="关于" Command="{Binding ShowAboutCommand}">
+                        <MenuItem.Icon>
+                            <Path Data="{StaticResource IconInfo}"
+                                  Fill="{StaticResource InfoBrush}"
+                                  Width="16" Height="16"
+                                  Stretch="Uniform"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                    <Separator/>
+                    <MenuItem Header="退出" Click="Exit_Click">
+                        <MenuItem.Icon>
+                            <Path Data="{StaticResource IconExit}"
+                                  Fill="{StaticResource ErrorBrush}"
+                                  Width="16" Height="16"
+                                  Stretch="Uniform"/>
+                        </MenuItem.Icon>
+                    </MenuItem>
+                </ContextMenu>
+            </Button.ContextMenu>
+        </Button>
+    </ToolBar>
+</ToolBarTray>
+
+<!-- 浮动操作按钮（FAB）- OCR 功能 -->
+<Button Width="56" Height="56"
+        VerticalAlignment="Bottom"
+        HorizontalAlignment="Right"
+        Margin="0,0,32,32"
+        Style="{StaticResource FabButtonStyle}"
+        Command="{Binding ShowOcrPanelCommand}"
+        Visibility="{Binding IsPdfView, Converter={StaticResource BoolToVisibilityConverter}}"
+        ToolTip="OCR 文字识别 (Ctrl+T)">
+    <StackPanel>
+        <Path Data="M4,4H7L9,2H15L17,4H20A2,2 0 0,1 22,6V18A2,2 0 0,1 20,20H4A2,2 0 0,1 2,18V6A2,2 0 0,1 4,4M12,7A5,5 0 0,0 7,12A5,5 0 0,0 12,17A5,5 0 0,0 17,12A5,5 0 0,0 12,7M12,9A3,3 0 0,1 15,12A3,3 0 0,1 12,15A3,3 0 0,1 9,12A3,3 0 0,1 12,9Z"
+              Fill="White"
+              Width="24" Height="24"
+              Stretch="Uniform"/>
+        <TextBlock Text="OCR"
+                   FontSize="10"
+                   Foreground="White"
+                   Margin="0,2,0,0"
+                   HorizontalAlignment="Center"/>
+    </StackPanel>
+</Button>

@@ -8,10 +8,11 @@ public class ToolbarViewModel : ViewModelBase
     private Color _selectedColor = Colors.Red;
     private double _eraserSize = 20;
     private ToolMode _activeTool = ToolMode.Pen;
-    private double _penSize = 3;
+    private double _penSize = 4;
     private DrawingAttributes _drawingAttributes = null!;
+    private bool _showToolPopup;
 
-    public enum ToolMode { Pen, Eraser }
+    public enum ToolMode { Pen, Eraser, Highlighter, Laser }
 
     public Color SelectedColor
     {
@@ -46,14 +47,22 @@ public class ToolbarViewModel : ViewModelBase
         {
             if (SetField(ref _activeTool, value))
             {
-                OnPropertyChanged(nameof(IsPenActive));
-                OnPropertyChanged(nameof(IsEraserActive));
+                NotifyActiveToolFlags();
+                UpdateDrawingAttributes();
             }
         }
     }
 
     public bool IsPenActive => ActiveTool == ToolMode.Pen;
     public bool IsEraserActive => ActiveTool == ToolMode.Eraser;
+    public bool IsHighlighterActive => ActiveTool == ToolMode.Highlighter;
+    public bool IsLaserActive => ActiveTool == ToolMode.Laser;
+
+    public bool ShowToolPopup
+    {
+        get => _showToolPopup;
+        set => SetField(ref _showToolPopup, value);
+    }
 
     public DrawingAttributes DrawingAttributes
     {
@@ -61,19 +70,35 @@ public class ToolbarViewModel : ViewModelBase
         private set => SetField(ref _drawingAttributes, value);
     }
 
+    // 12 色预设（对应 App.jsx PEN_COLORS）
     public Color[] PenColors { get; } =
     [
-        Colors.Red, Colors.Blue, Colors.Green, Colors.Black,
-        Colors.Orange, Colors.Purple, Colors.Yellow, Colors.White
+        Color.FromRgb(0x1A, 0x1A, 0x2E), // 深黑
+        Color.FromRgb(0xE7, 0x4C, 0x3C), // 红色
+        Color.FromRgb(0xF3, 0x9C, 0x12), // 橙色
+        Color.FromRgb(0xF1, 0xC4, 0x0F), // 黄色
+        Color.FromRgb(0x2E, 0xCC, 0x71), // 绿色
+        Color.FromRgb(0x1A, 0xBC, 0x9C), // 青色
+        Color.FromRgb(0x34, 0x98, 0xDB), // 蓝色
+        Color.FromRgb(0x29, 0x80, 0xB9), // 深蓝
+        Color.FromRgb(0x9B, 0x59, 0xB6), // 紫色
+        Color.FromRgb(0xE8, 0x43, 0x93), // 粉红
+        Color.FromRgb(0xE6, 0x7E, 0x22), // 深橙
+        Color.FromRgb(0x63, 0x6E, 0x72), // 灰色
     ];
 
-    public double[] PenSizes { get; } = [1, 3, 5, 8, 12];
+    public double[] PenSizes { get; } = [2, 4, 6, 9, 12];           // 钢笔/激光 5档
+    public double[] HighlighterSizes { get; } = [4, 8, 12, 18, 24]; // 荧光笔 5档
     public double[] EraserSizes { get; } = [10, 20, 30, 40, 50];
 
     public RelayCommand SetPenSizeCommand { get; }
     public RelayCommand SetEraserSizeCommand { get; }
+    public RelayCommand SetPenColorCommand { get; }
     public RelayCommand SelectPenCommand { get; }
     public RelayCommand SelectEraserCommand { get; }
+    public RelayCommand SelectHighlighterCommand { get; }
+    public RelayCommand SelectLaserCommand { get; }
+    public RelayCommand ToggleToolPopupCommand { get; }
     public RelayCommand ClearAllCommand { get; }
     public RelayCommand ToggleClearSliderCommand { get; }
 
@@ -123,11 +148,40 @@ public class ToolbarViewModel : ViewModelBase
             if (param is double size)
                 EraserSize = size;
         });
-        SelectPenCommand = new RelayCommand(() => ActiveTool = ToolMode.Pen);
-        SelectEraserCommand = new RelayCommand(() => ActiveTool = ToolMode.Eraser);
+        SetPenColorCommand = new RelayCommand(param =>
+        {
+            if (param is Color color)
+                SelectedColor = color;
+        });
+        SelectPenCommand = new RelayCommand(() => SelectTool(ToolMode.Pen));
+        SelectEraserCommand = new RelayCommand(() => SelectTool(ToolMode.Eraser));
+        SelectHighlighterCommand = new RelayCommand(() => SelectTool(ToolMode.Highlighter));
+        SelectLaserCommand = new RelayCommand(() => SelectTool(ToolMode.Laser));
+        ToggleToolPopupCommand = new RelayCommand(() => ShowToolPopup = !ShowToolPopup);
         ClearAllCommand = new RelayCommand(() => ShowClearSlider = !ShowClearSlider);
         ToggleClearSliderCommand = new RelayCommand(() => ShowClearSlider = !ShowClearSlider);
         UpdateDrawingAttributes();
+    }
+
+    private void SelectTool(ToolMode tool)
+    {
+        if (ActiveTool == tool)
+        {
+            ShowToolPopup = !ShowToolPopup;
+            NotifyActiveToolFlags();
+            return;
+        }
+
+        ActiveTool = tool;
+        ShowToolPopup = false;
+    }
+
+    private void NotifyActiveToolFlags()
+    {
+        OnPropertyChanged(nameof(IsPenActive));
+        OnPropertyChanged(nameof(IsEraserActive));
+        OnPropertyChanged(nameof(IsHighlighterActive));
+        OnPropertyChanged(nameof(IsLaserActive));
     }
 
     private void ExecuteClearAll()
@@ -147,13 +201,30 @@ public class ToolbarViewModel : ViewModelBase
 
     private void UpdateDrawingAttributes()
     {
-        DrawingAttributes = new DrawingAttributes
+        if (_activeTool == ToolMode.Highlighter)
         {
-            Color = _selectedColor,
-            Width = _penSize,
-            Height = _penSize,
-            FitToCurve = true,
-            IsHighlighter = false
-        };
+            // 荧光笔：半透明色层
+            var c = _selectedColor;
+            DrawingAttributes = new DrawingAttributes
+            {
+                Color = Color.FromArgb(100, c.R, c.G, c.B), // ~40% 不透明度
+                Width = _penSize,
+                Height = _penSize,
+                FitToCurve = true,
+                IsHighlighter = true
+            };
+        }
+        else
+        {
+            // 钢笔/激光：普通墨迹
+            DrawingAttributes = new DrawingAttributes
+            {
+                Color = _selectedColor,
+                Width = _penSize,
+                Height = _penSize,
+                FitToCurve = true,
+                IsHighlighter = false
+            };
+        }
     }
 }

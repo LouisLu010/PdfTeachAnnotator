@@ -105,10 +105,7 @@ public class EraserSizeConverter : IValueConverter
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
         if (value is double size)
-        {
-            // 将橡皮擦大小缩放到适合显示的范围 (10-50 -> 8-32)
-            return size * 0.64;
-        }
+            return size;
         return 16.0;
     }
 
@@ -138,4 +135,64 @@ public class InvertBoolConverter : IValueConverter
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         => value is bool b ? !b : false;
+}
+
+/// <summary>
+/// 比较两个 double 值，相等时返回 AccentBrush，否则返回 BorderSubtleBrush。
+/// 用于粗细预设按钮的选中高亮。
+/// </summary>
+public class SizeSelectedBrushConverter : IMultiValueConverter
+{
+    private static readonly SolidColorBrush Accent = new(Color.FromRgb(0x4F, 0x6E, 0xF7));
+    private static readonly SolidColorBrush Subtle = new(Color.FromArgb(0x14, 0x00, 0x00, 0x00));
+
+    public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+    {
+        if (values.Length == 2 && TryGetDouble(values[0], out var current) && TryGetDouble(values[1], out var button))
+            return Math.Abs(current - button) < 0.01 ? Accent : Subtle;
+        return Subtle;
+    }
+
+    private static bool TryGetDouble(object value, out double result)
+    {
+        switch (value)
+        {
+            case double d:
+                result = d;
+                return true;
+            case float f:
+                result = f;
+                return true;
+            case decimal m:
+                result = (double)m;
+                return true;
+            case int i:
+                result = i;
+                return true;
+            case long l:
+                result = l;
+                return true;
+            case string s:
+                return double.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out result) ||
+                       double.TryParse(s, NumberStyles.Float, CultureInfo.CurrentCulture, out result);
+            default:
+                result = 0;
+                return false;
+        }
+    }
+
+    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        => throw new NotSupportedException();
+}
+
+public class BoolToGridLengthConverter : IValueConverter
+{
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        bool collapsed = value is bool b && b;
+        return collapsed ? new GridLength(68) : new GridLength(220);
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        => throw new NotSupportedException();
 }

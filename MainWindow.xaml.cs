@@ -3,13 +3,14 @@ using System.Windows.Controls;
 using System.Windows.Ink;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
+using System.Windows.Threading;
 using PdfTeachAnnotator.Models;
 using PdfTeachAnnotator.ViewModels;
-using Wpf.Ui.Controls;
 
 namespace PdfTeachAnnotator;
 
-public partial class MainWindow : FluentWindow
+public partial class MainWindow : Window
 {
     private readonly MainViewModel _viewModel;
     private readonly Dictionary<StrokeCollection, int> _trackedStrokePages = new();
@@ -17,6 +18,7 @@ public partial class MainWindow : FluentWindow
     private ScrollViewer? _pdfScrollViewer;
     private readonly Dictionary<InkCanvas, StrokeCollection> _eraserBatchedRemovals = new();
     private readonly Dictionary<InkCanvas, List<Stroke>> _eraserBatchSnapshots = new();
+    private readonly List<(DispatcherTimer Timer, InkCanvas Canvas, Stroke Stroke)> _laserTimers = new();
 
     public MainViewModel ViewModel => _viewModel;
 
@@ -25,15 +27,40 @@ public partial class MainWindow : FluentWindow
         InitializeComponent();
         _viewModel = new MainViewModel();
         DataContext = _viewModel;
+        ToolPopup.DataContext = _viewModel;
+        ApplyTheme();
 
         _viewModel.Toolbar.ConfirmClearAll = () =>
             System.Windows.MessageBox.Show("确定要清除所有批注吗？", "确认清除",
                 System.Windows.MessageBoxButton.OKCancel, System.Windows.MessageBoxImage.Warning) == System.Windows.MessageBoxResult.OK;
 
+        _viewModel.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(MainViewModel.IsDarkMode))
+                ApplyTheme();
+            else if (e.PropertyName == nameof(MainViewModel.ZoomLevel))
+                UpdateEraserShapes();
+            else if (e.PropertyName == nameof(MainViewModel.IsSidebarCollapsed))
+                AnimateSidebar();
+        };
+
         _viewModel.Toolbar.PropertyChanged += (s, e) =>
         {
             if (e.PropertyName is nameof(ToolbarViewModel.EraserSize) or nameof(ToolbarViewModel.ActiveTool))
                 UpdateEraserShapes();
+
+            // 根据当前工具设置弹窗定位目标
+            if (e.PropertyName == nameof(ToolbarViewModel.ShowToolPopup) && _viewModel.Toolbar.ShowToolPopup)
+            {
+                ToolPopup.PlacementTarget = _viewModel.Toolbar.ActiveTool switch
+                {
+                    ToolbarViewModel.ToolMode.Pen => PenBtn,
+                    ToolbarViewModel.ToolMode.Highlighter => HighlighterBtn,
+                    ToolbarViewModel.ToolMode.Laser => LaserBtn,
+                    ToolbarViewModel.ToolMode.Eraser => EraserBtn,
+                    _ => PenBtn
+                };
+            }
         };
 
         InputBindings.Add(new KeyBinding(_viewModel.OpenFileCommand, Key.O, ModifierKeys.Control));
@@ -57,12 +84,126 @@ public partial class MainWindow : FluentWindow
             ResetTrackedStrokeCollections();
     }
 
+    private void Window_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        if (!_viewModel.Toolbar.ShowToolPopup || e.OriginalSource is not DependencyObject source)
+            return;
+
+        if (IsWithin(source, PenBtn) ||
+            IsWithin(source, HighlighterBtn) ||
+            IsWithin(source, LaserBtn) ||
+            IsWithin(source, EraserBtn) ||
+            IsWithin(source, ToolPopup.Child as DependencyObject))
+            return;
+
+        _viewModel.Toolbar.ShowToolPopup = false;
+    }
+
+    private static bool IsWithin(DependencyObject source, DependencyObject? target)
+    {
+        if (target == null)
+            return false;
+
+        for (DependencyObject? current = source; current != null; current = GetParent(current))
+        {
+            if (ReferenceEquals(current, target))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static DependencyObject? GetParent(DependencyObject current)
+    {
+        if (current is Visual or System.Windows.Media.Media3D.Visual3D)
+            return VisualTreeHelper.GetParent(current) ?? LogicalTreeHelper.GetParent(current);
+
+        return LogicalTreeHelper.GetParent(current);
+    }
+
     private void UpdateEraserShapes()
     {
-        var size = _viewModel.Toolbar.EraserSize;
-        var shape = new RectangleStylusShape(size, size);
         foreach (var inkCanvas in FindVisualChildren<InkCanvas>(this))
-            inkCanvas.EraserShape = shape;
+            UpdateEraserShape(inkCanvas);
+    }
+
+    private void AnimateSidebar()
+    {
+        var targetWidth = _viewModel.IsSidebarCollapsed ? 68.0 : 220.0;
+        var animation = new DoubleAnimation(targetWidth, new Duration(TimeSpan.FromMilliseconds(300)))
+        {
+            EasingFunction = new QuarticEase { EasingMode = EasingMode.EaseOut }
+        };
+        SidebarBorder.BeginAnimation(WidthProperty, animation);
+    }
+
+    private void UpdateEraserShape(InkCanvas inkCanvas)
+    {
+        inkCanvas.EraserShape = CreateEraserShape();
+        RefreshEraserCursor(inkCanvas);
+    }
+
+    private void RefreshEraserCursor(InkCanvas inkCanvas)
+    {
+        if (_viewModel.Toolbar.ActiveTool != ToolbarViewModel.ToolMode.Eraser)
+            return;
+
+        inkCanvas.SetCurrentValue(InkCanvas.EditingModeProperty, InkCanvasEditingMode.None);
+        inkCanvas.Dispatcher.BeginInvoke(() =>
+        {
+            if (_viewModel.Toolbar.ActiveTool == ToolbarViewModel.ToolMode.Eraser)
+                inkCanvas.SetCurrentValue(InkCanvas.EditingModeProperty, InkCanvasEditingMode.EraseByPoint);
+        }, DispatcherPriority.Render);
+    }
+
+    private RectangleStylusShape CreateEraserShape()
+    {
+        var zoom = Math.Max(_viewModel.ZoomLevel, 0.01);
+        var size = _viewModel.Toolbar.EraserSize / zoom;
+        return new RectangleStylusShape(size, size);
+    }
+
+    private void ApplyTheme()
+    {
+        if (_viewModel.IsDarkMode)
+        {
+            SetBrush("SurfaceBaseBrush", "DarkSurfaceBaseColor");
+            SetBrush("SurfaceRaisedBrush", "DarkSurfaceRaisedColor");
+            SetBrush("SurfaceOverlayBrush", "DarkSurfaceOverlayColor", 0.9);
+            SetBrush("SidebarBgBrush", "DarkSidebarBgColor");
+            SetBrush("SidebarHoverBrush", "DarkSidebarHoverColor");
+            SetBrush("SidebarActiveBrush", "DarkSidebarActiveColor");
+            SetBrush("TextPrimaryBrush", "DarkTextPrimaryColor");
+            SetBrush("TextSecondaryBrush", "DarkTextSecondaryColor");
+            SetBrush("TextMutedBrush", "DarkTextMutedColor");
+            SetBrush("BorderBrush", "DarkBorderColor");
+            SetBrush("BorderSubtleBrush", "DarkBorderColor");
+        }
+        else
+        {
+            SetBrush("SurfaceBaseBrush", Color.FromRgb(0xF0, 0xF2, 0xF5));
+            SetBrush("SurfaceRaisedBrush", Colors.White);
+            SetBrush("SurfaceOverlayBrush", Colors.White, 0.85);
+            SetBrush("SidebarBgBrush", Color.FromRgb(0xF3, 0xF3, 0xF5));
+            SetBrush("SidebarHoverBrush", Colors.Black, 0.05);
+            SetBrush("SidebarActiveBrush", Colors.Black, 0.08);
+            SetBrush("TextPrimaryBrush", Color.FromRgb(0x1A, 0x1A, 0x2E));
+            SetBrush("TextSecondaryBrush", Color.FromRgb(0x5A, 0x5A, 0x72));
+            SetBrush("TextMutedBrush", Color.FromRgb(0x8A, 0x8A, 0x9E));
+            SetBrush("BorderBrush", Color.FromRgb(0xD1, 0xD1, 0xD6));
+            SetBrush("BorderSubtleBrush", Colors.Black, 0.08);
+        }
+    }
+
+    private void SetBrush(string brushKey, string colorKey, double opacity = 1)
+    {
+        if (TryFindResource(colorKey) is Color color)
+            SetBrush(brushKey, color, opacity);
+    }
+
+    private void SetBrush(string key, Color color, double opacity = 1)
+    {
+        Resources[key] = new SolidColorBrush(color) { Opacity = opacity };
     }
 
     private static IEnumerable<T> FindVisualChildren<T>(DependencyObject parent) where T : DependencyObject
@@ -92,13 +233,32 @@ public partial class MainWindow : FluentWindow
             return;
 
         TrackStrokeCollection(page);
-        inkCanvas.EraserShape = new RectangleStylusShape(_viewModel.Toolbar.EraserSize, _viewModel.Toolbar.EraserSize);
+        UpdateEraserShape(inkCanvas);
         inkCanvas.PreviewMouseDown += InkCanvas_PreviewMouseDown;
         inkCanvas.PreviewMouseUp += InkCanvas_PreviewMouseUp;
     }
 
-    private void InkCanvas_StrokeCollected(object sender, InkCanvasStrokeCollectedEventArgs e) =>
+    private void InkCanvas_StrokeCollected(object sender, InkCanvasStrokeCollectedEventArgs e)
+    {
         CommandManager.InvalidateRequerySuggested();
+
+        // 激光笔：收集笔画后 3 秒自动淡化移除
+        if (sender is InkCanvas inkCanvas &&
+            _viewModel.Toolbar.ActiveTool == ToolbarViewModel.ToolMode.Laser)
+        {
+            var stroke = e.Stroke;
+            var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(3) };
+            timer.Tick += (_, _) =>
+            {
+                timer.Stop();
+                _laserTimers.RemoveAll(t => t.Stroke == stroke);
+                if (inkCanvas.Strokes.Contains(stroke))
+                    inkCanvas.Strokes.Remove(stroke);
+            };
+            timer.Start();
+            _laserTimers.Add((timer, inkCanvas, stroke));
+        }
+    }
 
     private void InkCanvas_StrokeErased(object sender, RoutedEventArgs e) =>
         CommandManager.InvalidateRequerySuggested();

@@ -1,0 +1,97 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ═══════════════════════════════════════════════════════════
+         PdfTeachAnnotator — Fluent Design 配色系统
+         严格按照 design/App.jsx 的 CSS 变量定义（浅色模式）
+         ═══════════════════════════════════════════════════════════ -->
+
+    <!-- === Surface Colors === -->
+    <SolidColorBrush x:Key="SurfaceBaseBrush" Color="#F0F2F5"/>
+    <SolidColorBrush x:Key="SurfaceRaisedBrush" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="SurfaceOverlayBrush" Color="#FFFFFF" Opacity="0.85"/>
+
+    <!-- === Sidebar Colors === -->
+    <SolidColorBrush x:Key="SidebarBgBrush" Color="#F3F3F5"/>
+    <SolidColorBrush x:Key="SidebarHoverBrush" Color="#000000" Opacity="0.05"/>
+    <SolidColorBrush x:Key="SidebarActiveBrush" Color="#000000" Opacity="0.08"/>
+
+    <!-- === Text Colors === -->
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="#1A1A2E"/>
+    <SolidColorBrush x:Key="TextSecondaryBrush" Color="#5A5A72"/>
+    <SolidColorBrush x:Key="TextMutedBrush" Color="#8A8A9E"/>
+
+    <!-- === Border === -->
+    <SolidColorBrush x:Key="BorderBrush" Color="#D1D1D6"/>
+    <SolidColorBrush x:Key="BorderSubtleBrush" Color="#000000" Opacity="0.08"/>
+
+    <!-- === Accent Colors === -->
+    <SolidColorBrush x:Key="AccentBrush" Color="#4F6EF7"/>
+    <SolidColorBrush x:Key="AccentHoverBrush" Color="#3B58E0"/>
+    <SolidColorBrush x:Key="AccentSoftBrush" Color="#4F6EF7" Opacity="0.15"/>
+
+    <!-- === Semantic Colors === -->
+    <SolidColorBrush x:Key="SuccessBrush" Color="#2ECC71"/>
+    <SolidColorBrush x:Key="WarningBrush" Color="#F39C12"/>
+    <SolidColorBrush x:Key="ErrorBrush" Color="#E74C3C"/>
+    <SolidColorBrush x:Key="ErrorSoftBrush" Color="#E74C3C" Opacity="0.12"/>
+
+    <!-- === Pen Colors (12 色预设) === -->
+    <SolidColorBrush x:Key="PenColor1" Color="#1A1A2E"/>
+    <SolidColorBrush x:Key="PenColor2" Color="#E74C3C"/>
+    <SolidColorBrush x:Key="PenColor3" Color="#F39C12"/>
+    <SolidColorBrush x:Key="PenColor4" Color="#F1C40F"/>
+    <SolidColorBrush x:Key="PenColor5" Color="#2ECC71"/>
+    <SolidColorBrush x:Key="PenColor6" Color="#1ABC9C"/>
+    <SolidColorBrush x:Key="PenColor7" Color="#3498DB"/>
+    <SolidColorBrush x:Key="PenColor8" Color="#2980B9"/>
+    <SolidColorBrush x:Key="PenColor9" Color="#9B59B6"/>
+    <SolidColorBrush x:Key="PenColor10" Color="#E84393"/>
+    <SolidColorBrush x:Key="PenColor11" Color="#E67E22"/>
+    <SolidColorBrush x:Key="PenColor12" Color="#636E72"/>
+
+    <!-- 圆角系统（对应 CSS radius-sm/md/lg） -->
+    <CornerRadius x:Key="RadiusSM">6</CornerRadius>
+    <CornerRadius x:Key="RadiusMD">10</CornerRadius>
+    <CornerRadius x:Key="RadiusLG">16</CornerRadius>
+
+    <!-- 阴影系统（对应 CSS shadow-sm/md/lg） -->
+    <DropShadowEffect x:Key="ShadowSM" Color="#000000" Opacity="0.08" ShadowDepth="1" BlurRadius="3"/>
+    <DropShadowEffect x:Key="ShadowMD" Color="#000000" Opacity="0.08" ShadowDepth="3" BlurRadius="14"/>
+    <DropShadowEffect x:Key="ShadowLG" Color="#000000" Opacity="0.14" ShadowDepth="8" BlurRadius="32"/>
+
+    <!-- === 字体大小 === -->
+    <System:Double xmlns:System="clr-namespace:System;assembly=mscorlib" x:Key="FontSize10">10</System:Double>
+    <System:Double xmlns:System="clr-namespace:System;assembly=mscorlib" x:Key="FontSize11">11</System:Double>
+    <System:Double xmlns:System="clr-namespace:System;assembly=mscorlib" x:Key="FontSize12">12</System:Double>
+    <System:Double xmlns:System="clr-namespace:System;assembly=mscorlib" x:Key="FontSize13">13</System:Double>
+    <System:Double xmlns:System="clr-namespace:System;assembly=mscorlib" x:Key="FontSize14">14</System:Double>
+    <System:Double xmlns:System="clr-namespace:System;assembly=mscorlib" x:Key="FontSize15">15</System:Double>
+    <System:Double xmlns:System="clr-namespace:System;assembly=mscorlib" x:Key="FontSize16">16</System:Double>
+    <System:Double xmlns:System="clr-namespace:System;assembly=mscorlib" x:Key="FontSize17">17</System:Double>
+    <System:Double xmlns:System="clr-namespace:System;assembly=mscorlib" x:Key="FontSize18">18</System:Double>
+    <System:Double xmlns:System="clr-namespace:System;assembly=mscorlib" x:Key="FontSize22">22</System:Double>
+    <System:Double xmlns:System="clr-namespace:System;assembly=mscorlib" x:Key="FontSize26">26</System:Double>
+
+    <!-- 动画时长（对应 CSS transition 0.2s） -->
+    <Duration x:Key="AnimationFast">0:0:0.15</Duration>
+    <Duration x:Key="AnimationMedium">0:0:0.2</Duration>
+    <Duration x:Key="AnimationSlow">0:0:0.35</Duration>
+
+    <!-- 简化用的立方贝塞尔近似（Storyboard 仅支持 EasingFunction）
+         cubic-bezier(0.16, 1, 0.3, 1) 类似 PowerEase/EaseOut -->
+    <CubicEase x:Key="EasingFluent"/>
+
+    <!-- === Dark Theme Palette (对应 design/App.jsx [data-theme=dark]) === -->
+    <Color x:Key="DarkSurfaceBaseColor">#0B0B0C</Color>
+    <Color x:Key="DarkSurfaceRaisedColor">#17181A</Color>
+    <Color x:Key="DarkSurfaceOverlayColor">#202225</Color>
+    <Color x:Key="DarkSidebarBgColor">#101011</Color>
+    <Color x:Key="DarkSidebarHoverColor">#12FFFFFF</Color>
+    <Color x:Key="DarkSidebarActiveColor">#14FFFFFF</Color>
+    <Color x:Key="DarkTextPrimaryColor">#E8E8ED</Color>
+    <Color x:Key="DarkTextSecondaryColor">#9A9AAB</Color>
+    <Color x:Key="DarkTextMutedColor">#6A6A7E</Color>
+    <Color x:Key="DarkBorderColor">#14FFFFFF</Color>
+
+</ResourceDictionary>
