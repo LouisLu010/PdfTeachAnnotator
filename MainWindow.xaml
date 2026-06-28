@@ -597,10 +597,8 @@
                                             <TextBlock Text="OCR 引擎" FontSize="15" FontWeight="Medium" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                             <TextBlock Text="{Binding OcrEngineDescription}" FontSize="13" Foreground="{DynamicResource TextMutedBrush}" Margin="0,2,0,0" TextWrapping="Wrap"/>
                                         </StackPanel>
-                                        <ComboBox Grid.Column="1" Width="180"
-                                                  ItemsSource="{Binding OcrEngines}"
-                                                  SelectedItem="{Binding SelectedOcrEngine, Mode=TwoWay}"
-                                                  VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="1" Text="Tesseract" FontSize="14" FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
                                     </Grid>
                                 </Border>
 
@@ -671,18 +669,18 @@
                                 <!-- Hero -->
                                 <StackPanel HorizontalAlignment="Center" Margin="0,40,0,24">
                                     <Border Width="64" Height="64" CornerRadius="18" Background="{StaticResource AccentBrush}">
-                                        <TextBlock Text="E" Foreground="White" FontWeight="Bold" FontSize="28"
+                                        <TextBlock Text="P" Foreground="White" FontWeight="Bold" FontSize="28"
                                                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Text="EduPDF 教学批注系统" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"
+                                    <TextBlock Text="PdfTeachAnnotator" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"
                                                HorizontalAlignment="Center" Margin="0,16,0,0"/>
-                                    <TextBlock Text="版本 1.0.0" FontSize="13" Foreground="{DynamicResource TextMutedBrush}" HorizontalAlignment="Center" Margin="0,4,0,0"/>
+                                    <TextBlock Text="PDF 教学批注工具 · Tesseract-only" FontSize="13" Foreground="{DynamicResource TextMutedBrush}" HorizontalAlignment="Center" Margin="0,4,0,0"/>
                                 </StackPanel>
 
                                 <!-- Description -->
-                                <TextBlock TextAlignment="Center" TextWrapping="Wrap" MaxWidth="600" Margin="0,0,0,24"
+                                <TextBlock TextAlignment="Center" TextWrapping="Wrap" MaxWidth="620" Margin="0,0,0,24"
                                            FontSize="14" Foreground="{DynamicResource TextSecondaryBrush}" LineHeight="24">
-                                    专为中小学及高校教学场景设计的现代化 PDF 批注软件。支持原笔迹手写、多种教学画笔工具与防丢失的自动保存功能，完美适配多媒体教学一体机的大屏触控操作。
+                                    面向课堂讲解、课件批注和 PDF 备课场景设计的 Windows 桌面应用。支持原笔迹手写、荧光标注、激光笔演示、橡皮擦、撤销重做和本地离线 OCR；批注以同名 .annotations 文件独立保存，不修改原始 PDF。
                                 </TextBlock>
 
                                 <!-- Features -->
@@ -691,22 +689,22 @@
                                         <TextBlock Text="核心特性" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,12"/>
                                         <UniformGrid Columns="2" Rows="3">
                                             <Border Background="{DynamicResource SurfaceBaseBrush}" CornerRadius="{StaticResource RadiusSM}" Padding="28,8,12,8" Margin="0,0,6,5">
-                                                <TextBlock Text="原笔迹手写批注阻尼感" FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                                <TextBlock Text="钢笔、荧光笔、激光笔、橡皮擦" FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}"/>
                                             </Border>
                                             <Border Background="{DynamicResource SurfaceBaseBrush}" CornerRadius="{StaticResource RadiusSM}" Padding="28,8,12,8" Margin="6,0,0,5">
-                                                <TextBlock Text="钢笔、荧光、激光、橡皮擦" FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                                <TextBlock Text="批注旁路保存，不改原 PDF" FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}"/>
                                             </Border>
                                             <Border Background="{DynamicResource SurfaceBaseBrush}" CornerRadius="{StaticResource RadiusSM}" Padding="28,8,12,8" Margin="0,0,6,5">
-                                                <TextBlock Text="智能OCR识别" FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                                <TextBlock Text="Tesseract 本地中英文 OCR" FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}"/>
                                             </Border>
                                             <Border Background="{DynamicResource SurfaceBaseBrush}" CornerRadius="{StaticResource RadiusSM}" Padding="28,8,12,8" Margin="6,0,0,5">
-                                                <TextBlock Text="无感异步自动保存" FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                                <TextBlock Text="最近文件、自动保存、撤销重做" FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}"/>
                                             </Border>
                                             <Border Background="{DynamicResource SurfaceBaseBrush}" CornerRadius="{StaticResource RadiusSM}" Padding="28,8,12,8" Margin="0,0,6,0">
-                                                <TextBlock Text="深色模式适配暗光教室" FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                                <TextBlock Text="深浅色主题适配不同教室光线" FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}"/>
                                             </Border>
                                             <Border Background="{DynamicResource SurfaceBaseBrush}" CornerRadius="{StaticResource RadiusSM}" Padding="28,8,12,8" Margin="6,0,0,0">
-                                                <TextBlock Text="Windows 11 Fluent 风格" FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                                <TextBlock Text="侧边栏折叠与触控友好界面" FontSize="13" Foreground="{DynamicResource TextSecondaryBrush}"/>
                                             </Border>
                                         </UniformGrid>
                                     </StackPanel>
@@ -714,7 +712,7 @@
 
                                 <!-- Footer -->
                                 <Border BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="0,1,0,0" Padding="32,24">
-                                    <TextBlock Text="© 2026 EduPDF Team · 保留所有权利" FontSize="13" Foreground="{DynamicResource TextMutedBrush}" HorizontalAlignment="Center"/>
+                                    <TextBlock Text="© 2026 Hongjun Lu · Made for teaching workflows" FontSize="13" Foreground="{DynamicResource TextMutedBrush}" HorizontalAlignment="Center"/>
                                 </Border>
                             </StackPanel>
                         </Border>

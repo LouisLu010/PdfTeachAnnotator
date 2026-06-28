@@ -38,6 +38,9 @@
 
 name: .NET Core Desktop
 
+permissions:
+  contents: write
+
 on:
   push:
     branches: [ "main" ]
@@ -77,27 +80,91 @@ jobs:
 
     # Publish application
     - name: Publish application
-      run: dotnet publish $env:Project_Path -c Release --no-build -o publish
+      run: dotnet publish $env:Project_Path -c Release --no-build -o publish -p:DebugType=None -p:DebugSymbols=false
+
+    # Create root launcher
+    - name: Create root launcher
+      shell: pwsh
+      run: |
+        $launcherSrc = "launcher-src"
+        $launcherPublish = "launcher-publish"
+        New-Item -ItemType Directory -Path $launcherSrc -Force | Out-Null
+
+        @'
+        <Project Sdk="Microsoft.NET.Sdk">
+          <PropertyGroup>
+            <OutputType>WinExe</OutputType>
+            <TargetFramework>net8.0-windows</TargetFramework>
+            <Nullable>enable</Nullable>
+            <ImplicitUsings>enable</ImplicitUsings>
+            <UseWindowsForms>true</UseWindowsForms>
+            <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+            <SelfContained>true</SelfContained>
+            <PublishSingleFile>true</PublishSingleFile>
+            <PublishTrimmed>false</PublishTrimmed>
+          </PropertyGroup>
+        </Project>
+        '@.TrimStart() | Set-Content "$launcherSrc\PdfTeachAnnotator.Launcher.csproj" -Encoding UTF8
+
+        @'
+        using System.Diagnostics;
+        using System.Windows.Forms;
+
+        var baseDirectory = AppContext.BaseDirectory;
+        var appDirectory = Path.Combine(baseDirectory, "App");
+        var appPath = Path.Combine(appDirectory, "PdfTeachAnnotator.exe");
+
+        if (!File.Exists(appPath))
+        {
+            MessageBox.Show(
+                $"未找到应用程序文件：{appPath}\n\n请确认发布包已完整解压，且 App 文件夹与本启动器位于同一目录。",
+                "PdfTeachAnnotator 启动失败",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error);
+            return 1;
+        }
+
+        try
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = appPath,
+                WorkingDirectory = appDirectory,
+                UseShellExecute = true
+            });
+            return 0;
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(
+                $"启动应用程序失败：{ex.Message}",
+                "PdfTeachAnnotator 启动失败",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error);
+            return 1;
+        }
+        '@.TrimStart() | Set-Content "$launcherSrc\Program.cs" -Encoding UTF8
+
+        dotnet publish "$launcherSrc\PdfTeachAnnotator.Launcher.csproj" -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:PublishTrimmed=false -p:DebugType=None -p:DebugSymbols=false -o $launcherPublish
 
     # Organize release package
     - name: Organize release package
       shell: pwsh
       run: |
         $sourceDir = "publish"
-        $targetDir = "PdfTeachAnnotator-Release"
+        $targetDir = "PdfTeachAnnotator-TesseractOnly-win-x64"
 
         New-Item -ItemType Directory -Path $targetDir -Force | Out-Null
         New-Item -ItemType Directory -Path "$targetDir\App" -Force | Out-Null
+        New-Item -ItemType Directory -Path "$targetDir\docs" -Force | Out-Null
+        New-Item -ItemType Directory -Path "$targetDir\tools" -Force | Out-Null
 
-        # Copy all files to App subfolder
+        Copy-Item "launcher-publish\PdfTeachAnnotator.Launcher.exe" -Destination "$targetDir\PdfTeachAnnotator.exe" -Force
         Copy-Item "$sourceDir\*" -Destination "$targetDir\App\" -Recurse -Force
-
-        # Create shortcut
-        $WshShell = New-Object -ComObject WScript.Shell
-        $Shortcut = $WshShell.CreateShortcut("$targetDir\PdfTeachAnnotator.lnk")
-        $Shortcut.TargetPath = "$targetDir\App\PdfTeachAnnotator.exe"
-        $Shortcut.WorkingDirectory = "$targetDir\App"
-        $Shortcut.Save()
+        Copy-Item "README.md" -Destination "$targetDir\docs\README.md" -Force
+        if (Test-Path "LICENSE") { Copy-Item "LICENSE" -Destination "$targetDir\docs\LICENSE" -Force }
+        if (Test-Path "使用说明.txt") { Copy-Item "使用说明.txt" -Destination "$targetDir\docs\使用说明.txt" -Force }
+        if (Test-Path "诊断工具.bat") { Copy-Item "诊断工具.bat" -Destination "$targetDir\App\诊断工具.bat" -Force }
 
         Write-Output "Package organized successfully"
 
@@ -105,23 +172,24 @@ jobs:
     - name: Create ZIP archive
       shell: pwsh
       run: |
-        Compress-Archive -Path "PdfTeachAnnotator-Release\*" -DestinationPath "PdfTeachAnnotator-Release.zip" -CompressionLevel Optimal
-        $size = (Get-Item "PdfTeachAnnotator-Release.zip").Length / 1MB
+        Compress-Archive -Path "PdfTeachAnnotator-TesseractOnly-win-x64\*" -DestinationPath "PdfTeachAnnotator-TesseractOnly-win-x64.zip" -CompressionLevel Optimal
+        $size = (Get-Item "PdfTeachAnnotator-TesseractOnly-win-x64.zip").Length / 1MB
         Write-Output "ZIP created: $([math]::Round($size, 2)) MB"
 
     # Upload build artifacts
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: PdfTeachAnnotator-Release
-        path: PdfTeachAnnotator-Release.zip
+        name: PdfTeachAnnotator-TesseractOnly-win-x64
+        path: PdfTeachAnnotator-TesseractOnly-win-x64.zip
 
     # Create GitHub Release (only on tags)
     - name: Create GitHub Release
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
       with:
-        files: PdfTeachAnnotator-Release.zip
+        files: PdfTeachAnnotator-TesseractOnly-win-x64.zip
+        body_path: docs/releases/v1.2.0.md
         draft: false
         prerelease: false
       env:

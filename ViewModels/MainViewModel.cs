@@ -38,28 +38,7 @@ public class MainViewModel : ViewModelBase, IDisposable
     public ToolbarViewModel Toolbar { get; } = new();
     public AppSettings Settings { get; } = AppSettings.Load();
     public ObservableCollection<RecentFile> RecentFiles { get; } = new();
-    public string[] OcrEngines { get; } = [OcrEngineNames.Tesseract, OcrEngineNames.IronOcr, OcrEngineNames.PaddleOcr];
-
-    public string SelectedOcrEngine
-    {
-        get => Settings.OcrEngine;
-        set
-        {
-            if (Settings.OcrEngine == value) return;
-            Settings.OcrEngine = value;
-            Settings.Save();
-            ResetOcrService();
-            OnPropertyChanged();
-            OnPropertyChanged(nameof(OcrEngineDescription));
-        }
-    }
-
-    public string OcrEngineDescription => SelectedOcrEngine switch
-    {
-        OcrEngineNames.IronOcr => "商业 OCR 引擎，中文识别可尝试，可能显示授权水印。",
-        OcrEngineNames.PaddleOcr => "高准确率中文 OCR，性能要求较高；当前为预留选项，需配置 PP-OCR 模型后启用。",
-        _ => "默认本地 Tesseract OCR，离线可用，资源占用较低。"
-    };
+    public string OcrEngineDescription => "默认本地 Tesseract OCR，离线可用，资源占用较低。";
 
     public string CurrentView
     {
@@ -592,7 +571,7 @@ public class MainViewModel : ViewModelBase, IDisposable
 
     private IOcrService GetOcrService()
     {
-        _ocrService ??= OcrServiceFactory.Create(Settings.OcrEngine);
+        _ocrService ??= OcrServiceFactory.Create();
         return _ocrService;
     }
 
