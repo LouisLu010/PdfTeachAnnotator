@@ -129,7 +129,7 @@ public partial class MainWindow : Window
 
     private void AnimateSidebar()
     {
-        var targetWidth = _viewModel.IsSidebarCollapsed ? 68.0 : 220.0;
+        var targetWidth = _viewModel.IsSidebarCollapsed ? 80.0 : 220.0;
         var animation = new DoubleAnimation(targetWidth, new Duration(TimeSpan.FromMilliseconds(300)))
         {
             EasingFunction = new QuarticEase { EasingMode = EasingMode.EaseOut }

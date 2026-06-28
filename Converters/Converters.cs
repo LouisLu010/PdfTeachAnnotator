@@ -190,7 +190,7 @@ public class BoolToGridLengthConverter : IValueConverter
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
         bool collapsed = value is bool b && b;
-        return collapsed ? new GridLength(68) : new GridLength(220);
+        return collapsed ? new GridLength(80) : new GridLength(220);
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
