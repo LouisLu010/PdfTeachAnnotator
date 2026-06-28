@@ -4,6 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
 using static PdfTeachAnnotator.ViewModels.ToolbarViewModel;
+using Color = System.Windows.Media.Color;
 
 namespace PdfTeachAnnotator.Converters;
 

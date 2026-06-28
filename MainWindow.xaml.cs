@@ -7,6 +7,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using PdfTeachAnnotator.Models;
 using PdfTeachAnnotator.ViewModels;
+using Color = System.Windows.Media.Color;
 
 namespace PdfTeachAnnotator;
 
