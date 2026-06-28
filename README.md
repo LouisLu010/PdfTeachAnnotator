@@ -281,6 +281,7 @@ PdfTeachAnnotator/
 - [PDFium](https://pdfium.googlesource.com/pdfium/) - PDF 渲染引擎
 - [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) - 本地 OCR 引擎
 - [.NET](https://dotnet.microsoft.com/) - 应用运行平台
+- [LINUX DO](https://linux.do/) - 新的理想型社区
 
 ---
 
