@@ -11,3 +11,4 @@
 *.log
 check-startup.ps1
 vercel.json
+/PdfTeachAnnotator.Tests
